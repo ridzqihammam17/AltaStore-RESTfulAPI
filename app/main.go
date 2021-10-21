@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 
+	"altastore/api/controllers"
 	"altastore/api/router"
 	"altastore/config"
+	"altastore/models"
 	"altastore/util"
 
 	"github.com/labstack/echo/v4"
@@ -16,19 +18,19 @@ func main() {
 	config := config.GetConfig()
 
 	//initialize database connection based on given config
-	util.MysqlDatabaseConnection(config)
+	db := util.MysqlDatabaseConnection(config)
 
 	//initiate user model
-	//customerModel := models.NewCustomerModel(db)
+	customerModel := models.NewCustomerModel(db)
 
 	//initiate user controller
-	//newCustomerController := customerController.NewController(customerModel)
+	newCustomerController := controllers.NewController(customerModel)
 
 	//create echo http
 	e := echo.New()
 
 	//register API path and controller
-	router.Route()
+	router.Route(e, newCustomerController)
 
 	// run server
 	address := fmt.Sprintf("localhost:%d", config.Port)

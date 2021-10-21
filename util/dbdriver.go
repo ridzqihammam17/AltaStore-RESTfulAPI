@@ -2,6 +2,7 @@ package util
 
 import (
 	"altastore/config"
+	"altastore/models"
 	"fmt"
 
 	"github.com/labstack/gommon/log"
@@ -10,9 +11,7 @@ import (
 )
 
 func MysqlDatabaseConnection(config *config.AppConfig) *gorm.DB {
-	var uri string
-
-	uri = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true",
+	uri := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true",
 		config.Database.Username,
 		config.Database.Password,
 		config.Database.Address,
@@ -26,12 +25,12 @@ func MysqlDatabaseConnection(config *config.AppConfig) *gorm.DB {
 		panic(err)
 	}
 	// Uncommand For Migration
-	// DatabaseMigration(db)
+	DatabaseMigration(db)
 
 	return db
 }
 
 // Create Migration Here
-// func DatabaseMigration(db *gorm.DB) {
-
-// }
+func DatabaseMigration(db *gorm.DB) {
+	db.AutoMigrate(models.Customer{})
+}
