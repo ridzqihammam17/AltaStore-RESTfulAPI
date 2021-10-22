@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	echo "github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Controller struct {
@@ -17,20 +18,25 @@ func NewController(customerModel models.CustomerModel) *Controller {
 	}
 }
 
-func (controller *Controller) GetAllCustomerController(c echo.Context) error {
-	customer, err := controller.customerModel.GetAll()
-	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid Request")
-	}
-
-	return c.JSON(http.StatusOK, customer)
-}
-
-func (controller *Controller) PostCustomerController(c echo.Context) error {
-	// bind request value
+func (controller *Controller) RegisterCustomerController(c echo.Context) error {
 	var customerRequest models.Customer
 	if err := c.Bind(&customerRequest); err != nil {
-		return c.String(http.StatusBadRequest, "Invalid Request")
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
+	}
+
+	// Encrypt Password on Register
+	hashedPassword, er := bcrypt.GenerateFromPassword([]byte(customerRequest.Password), bcrypt.MinCost)
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"code":    500,
+			"message": "Internal Server Error",
+		})
 	}
 
 	customer := models.Customer{
@@ -38,12 +44,38 @@ func (controller *Controller) PostCustomerController(c echo.Context) error {
 		Address:  customerRequest.Address,
 		Gender:   customerRequest.Gender,
 		Email:    customerRequest.Email,
-		Password: customerRequest.Password,
+		Password: string(hashedPassword),
 	}
-	_, err := controller.customerModel.Insert(customer)
+	_, err := controller.customerModel.Register(customer)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Internal Error")
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"code":    500,
+			"message": "Internal Server Error",
+		})
 	}
 
-	return c.String(http.StatusOK, "Succes Add Account")
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Register",
+	})
+}
+
+func (controller *Controller) GetAllCustomerController(c echo.Context) error {
+	customer, err := controller.customerModel.GetAll()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Get All Customer",
+		"data":    customer,
+	})
 }
