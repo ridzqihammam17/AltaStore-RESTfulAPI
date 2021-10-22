@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"altastore/lib/database"
 	"altastore/models"
 
-	echo "github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 func AddToCartController(c echo.Context) error {

@@ -2,29 +2,35 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
-	"altastore/api/middlewares"
-	"altastore/lib/database"
 	"altastore/models"
 
-	echo "github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
+type CartController struct {
+	cartModel models.Carts
+}
 
-func CreateCartController(c echo.Context) error {
+func NewCartController(cartModel models.Carts) *CartController {
+	return &CartController{
+		cartModel,
+	}
+}
+
+func (controller *CartController) CreateCartController(c echo.Context) error {
 
 	// ------------ cart -------------//
 	//rec user input
-	cart := models.Carts{}
+	var cart models.Carts
 	c.Bind(&cart) //input: payment method id
 
 	// get id user login
-	customerId := middlewares.ExtractTokenCustomerId(c)
+	customerId := middlewares.ExtractTokenUserId(c)
 
 	//check product id on table product
 	paymentId := cart.PaymentMethodsID
 	var payment models.PaymentMethods
-	checkPayment, err := database.CheckPayment(paymentId, payment)
+	checkPayment, err := controller.cartModel.CheckPayment(paymentId, payment)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Cant find payment method",
@@ -40,7 +46,7 @@ func CreateCartController(c echo.Context) error {
 		CustomersID:        customerId,
 		PaymentMethodsID:   paymentId,
 	}
-	newCart, _ := database.CreateCart(cart)
+	newCart, _ := controller.cartModel.CreateCart(cart)
 
 	//------------ cart detail -------------//
 	// convert product id
@@ -53,7 +59,7 @@ func CreateCartController(c echo.Context) error {
 
 	// check product id on table product
 	var product models.Products
-	checkProductId, err := database.CheckProductId(productId, product)
+	checkProductId, err := controller.cartModel.CheckProductId(productId, product)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Product isn't found with product id #" + strconv.Itoa(productId),
@@ -62,7 +68,7 @@ func CreateCartController(c echo.Context) error {
 	}
 
 	//get price
-	getProduct, _ := database.GetProduct(productId)
+	getProduct, _ := controller.cartModel.GetProduct(productId)
 
 	//convert qty
 	qty, _ := strconv.Atoi(c.Param("qty"))
@@ -76,13 +82,13 @@ func CreateCartController(c echo.Context) error {
 	}
 
 	//create cart detail
-	newCartDetail, _ := database.AddToCart(cartDetails)
+	newCartDetail, _ := controller.cartModel.AddToCart(cartDetails)
 
 	//update total quantity and total price on table carts
 	UpdateTotalCart(newCart.ID)
 
 	//get cart updated (total qty&total price)
-	updatedCart, _ := database.GetCart(newCart.ID)
+	updatedCart, _ := controller.cartModel.GetCart(newCart.ID)
 
 	//custom data cart for body response
 	outputCart := map[string]interface{}{
@@ -105,15 +111,15 @@ func CreateCartController(c echo.Context) error {
 }
 
 //func for update total quantity and total price on table carts
-func UpdateTotalCart(cartId int) (int, int) {
-	newTotalPrice, _ := database.GetTotalPrice(cartId)
+func (controller *CartController) UpdateTotalCart(cartId int) (int, int) {
+	newTotalPrice, _ := controller.cartModel.GetTotalPrice(cartId)
 	newTotalQty, _ := database.GetTotalQty(cartId)
 	newCart, _ := database.UpdateTotalCart(cartId, newTotalPrice, newTotalQty)
 
 	return newCart.TotalQuantity, newCart.TotalPrice
 }
 
-func GetCartController(c echo.Context) error {
+func (controller *CartController) GetCartController(c echo.Context) error {
 	//convert cart_id
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -123,7 +129,7 @@ func GetCartController(c echo.Context) error {
 	}
 	//is cart id exist
 	var cart models.Carts
-	checkCartId, err := database.CheckCartId(id, cart)
+	checkCartId, err := controller.cartModel.CheckCartId(id, cart)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Cant find cart id",
@@ -131,8 +137,8 @@ func GetCartController(c echo.Context) error {
 		})
 	}
 
-	listCart, _ := database.GetCartById(id)        //get cart by id
-	products, _ := database.GetListProductCart(id) //get all products based on cart id
+	listCart, _ := controller.cartModel.GetCartById(id)        //get cart by id
+	products, _ := controller.cartModel.GetListProductCart(id) //get all products based on cart id
 
 	//custom data cart for body response
 	outputCart := map[string]interface{}{
@@ -154,7 +160,7 @@ func GetCartController(c echo.Context) error {
 	})
 }
 
-func DeleteCartController(c echo.Context) error {
+func (controller *CartController) DeleteCartController(c echo.Context) error {
 	//convert cart id
 	cartId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -165,16 +171,16 @@ func DeleteCartController(c echo.Context) error {
 
 	//check is cart id exist on table cart
 	var cart models.Carts
-	checkCartId, err := database.CheckCartId(cartId, cart)
+	checkCartId, err := controller.cartModel.CheckCartId(cartId, cart)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"message":     "Cant find cart",
+			"message":     "Can't find cart",
 			"checkCartId": checkCartId,
 		})
 	}
 
 	//delete cart and all products included on it
-	deletedCart, _ := database.DeleteCart(cartId)
+	deletedCart, _ := controller.cartModel.DeleteCart(cartId)
 
 	//custom output data cart for body response
 	outputCart := map[string]interface{}{

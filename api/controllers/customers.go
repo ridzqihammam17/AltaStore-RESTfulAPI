@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"altastore/models"
 	"net/http"
+
+	"altastore/models"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -45,5 +46,5 @@ func (controller *Controller) PostCustomerController(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Error")
 	}
 
-	return c.String(http.StatusOK, "Succes Add Account")
+	return c.String(http.StatusOK, "Success Add Account")
 }

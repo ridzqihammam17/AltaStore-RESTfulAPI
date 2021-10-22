@@ -19,6 +19,65 @@ type GormCartDetailsModel struct {
 	db *gorm.DB
 }
 
-func NewCartDetailsModel(db *gorm.DB) *GormCartDetailsModel {
+func (m *GormCartDetailsModel) NewCartDetailsModel(db *gorm.DB) *GormCartDetailsModel {
 	return &GormCartDetailsModel{db: db}
 }
+
+type CartDetailsModel interface {
+	CheckProductAndCartId(productId, cartId int, cartDetails []CartDetails) (interface{}, error)
+	GetCartDetailByCartId(cartId int) ([]CartDetails, error)
+	AddToCart(cartDetails []CartDetails) ([]CartDetails, error)
+	DeleteProductFromCart(cartId, productId int) (interface{}, error)
+	GetListProductCart(cartId int) (interface{}, error)
+	CountProductOnCart(cartId int) (int, error)
+}
+func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cartDetails []CartDetails) (interface{}, error) {
+	if err := m.db.Where("carts_id=? AND products_id=?", cartId, productId).First(&cartDetails).Error; err != nil {
+		return nil, err
+	}
+	return cartDetails, nil
+}
+//Get cart details by Cart ID
+func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) ([]CartDetails, error) {
+	var cartDetails []CartDetails
+	if err := m.db.Find(&cartDetails, "carts_id=?", cartId).Error; err != nil {
+		return cartDetails, err
+	}
+	return cartDetails, nil
+}
+
+//add product to cart
+func (m *GormCartDetailsModel) AddToCart(cartDetails []CartDetails) ([]CartDetails, error) {
+	if err := m.db.Save(&cartDetails).Error; err != nil {
+		return cartDetails, err
+	}
+	return cartDetails, nil
+}
+
+//delete product from cart detail
+func (m *GormCartDetailsModel) DeleteProductFromCart(cartId, productId int) (interface{}, error) {
+	var cartDetails []CartDetails
+	if err := m.db.Find(&cartDetails, "carts_id=? AND products_id=?", cartId, productId).Unscoped().Delete(&cartDetails).Error; err != nil {
+		return nil, err
+	}
+	return cartDetails, nil
+}
+
+//get all products from cart detail
+func (m *GormCartDetailsModel) GetListProductCart(cartId int) (interface{}, error) {
+	var products []Products
+
+	if err := m.db.Table("products").Joins("JOIN cart_details ON products.id = cart_details.products_id").Joins("JOIN carts ON cart_details.carts_id = carts.id").Where("carts.id=?", cartId).Find(&products).Error; err != nil {
+		return products, nil
+	}
+	return products, nil
+}
+
+func (m *GormCartDetailsModel) CountProductOnCart(cartId int) (int, error) {
+	var countProduct int
+	if err := m.db.Select("COUNT(carts_id)").Where("carts_id=?", cartId).First(&countProduct).Error; err == nil {
+		return countProduct, err
+	}
+	return countProduct, nil
+}
+
