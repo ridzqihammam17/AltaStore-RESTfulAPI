@@ -33,4 +33,5 @@ func MysqlDatabaseConnection(config *config.AppConfig) *gorm.DB {
 // Create Migration Here
 func DatabaseMigration(db *gorm.DB) {
 	db.AutoMigrate(models.Customer{})
+	db.AutoMigrate(models.Category{})
 }

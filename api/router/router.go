@@ -8,7 +8,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Route(e *echo.Echo, customerController *controllers.Controller) {
+func Route(e *echo.Echo,
+	customerController *controllers.CustomerController,
+	categoryController *controllers.CategoryController,
+) {
 	// ------------------------------------------------------------------
 	// Login & Register
 	// ------------------------------------------------------------------
@@ -18,5 +21,17 @@ func Route(e *echo.Echo, customerController *controllers.Controller) {
 	// Auth JWT
 	eAuth := e.Group("")
 	eAuth.Use(middleware.JWT([]byte(constants.SECRET_JWT)))
+
+	// Customers
 	eAuth.GET("/api/customers", customerController.GetAllCustomerController)
+
+	// ------------------------------------------------------------------
+	// CRUD Categories
+	// ------------------------------------------------------------------
+	eAuth.GET("/api/categories", categoryController.GetAllCategoryController)
+	eAuth.GET("/api/categories/:id", categoryController.GetCategoryController)
+	eAuth.POST("/api/categories", categoryController.AddCategoryController)
+	eAuth.PUT("/api/categories/:id", categoryController.EditCategoryController)
+	eAuth.DELETE("/api/categories/:id", categoryController.DeleteCategoryController)
+
 }
