@@ -10,12 +10,13 @@ import (
 
 func Route(e *echo.Echo, customerController *controllers.Controller) {
 	// ------------------------------------------------------------------
-	// Login & register
+	// Login & Register
 	// ------------------------------------------------------------------
-	e.POST("/register", customerController.RegisterCustomerController)
+	e.POST("/api/register", customerController.RegisterCustomerController)
+	e.POST("/api/login", customerController.LoginCustomerController)
 
 	// Auth JWT
 	eAuth := e.Group("")
 	eAuth.Use(middleware.JWT([]byte(constants.SECRET_JWT)))
-	eAuth.GET("/customers", customerController.GetAllCustomerController)
+	eAuth.GET("/api/customers", customerController.GetAllCustomerController)
 }
