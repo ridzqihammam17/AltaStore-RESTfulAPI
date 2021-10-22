@@ -9,7 +9,16 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-func AddToCartController(c echo.Context) error {
+type CartDetailsController struct {
+	cartDetailModel models.CartDetailsModel
+}
+
+func NewCartDetailController(cartDetailsModel models.CartDetails) *CartDetailsController {
+	return &CartDetailsController{
+		cartDetailsModel,
+	}
+}
+func (controller *CartDetailsController) AddToCartController(c echo.Context) error {
 	var cart models.Carts
 
 	//check id cart is exist
@@ -19,7 +28,7 @@ func AddToCartController(c echo.Context) error {
 			"message": "Cart Id is Invalid",
 		})
 	}
-	checkCartId, err := database.CheckCartId(cartId, cart)
+	checkCartId, err := controller.cartDetailModel.CheckCartId(cartId, cart)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Can't find cart",
@@ -34,7 +43,7 @@ func AddToCartController(c echo.Context) error {
 	//check product id on table product
 	productId := cartDetails.ProductsID //get product_id
 	var product models.Products
-	checkProductId, err := database.CheckProductId(productId, product)
+	checkProductId, err := controller.cartDetailModel.CheckProductId(productId, product)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Can't find product",
@@ -43,7 +52,7 @@ func AddToCartController(c echo.Context) error {
 	}
 
 	//get price
-	getProduct, _ := database.GetProduct(productId)
+	getProduct, _ := controller.cartDetailModel.GetProduct(productId)
 
 	//set data cart details
 	cartDetails = models.CartDetails{
@@ -54,10 +63,10 @@ func AddToCartController(c echo.Context) error {
 	}
 
 	//create cart detail
-	newCartDetail, _ := database.AddToCart(cartDetails)
+	newCartDetail, _ := controller.cartDetailModel.AddToCart(cartDetails)
 
 	//update total quantity and total price on table carts
-	newTotalQty, newTotalPrice := UpdateTotalCart(cartId)
+	newTotalQty, newTotalPrice := controller.cartDetailModel.UpdateTotalCart(cartId)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"cartDetails":    newCartDetail,
@@ -67,7 +76,7 @@ func AddToCartController(c echo.Context) error {
 	})
 }
 
-func DeleteProductFromCartController(c echo.Context) error {
+func (controller *CartDetailsController) DeleteProductFromCartController(c echo.Context) error {
 	//convert cart id
 	cartId, err := strconv.Atoi(c.Param("carts_id"))
 	if err != nil {
@@ -78,7 +87,7 @@ func DeleteProductFromCartController(c echo.Context) error {
 
 	//check is cart id exist on table cart
 	var cart models.Carts
-	checkCartId, err := database.CheckCartId(cartId, cart)
+	checkCartId, err := controller.cartModel.CheckCartId(cartId, cart)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Cart isn't found",
@@ -96,7 +105,7 @@ func DeleteProductFromCartController(c echo.Context) error {
 
 	//check is product id exist on table product
 	var product models.Products
-	checkProductId, err := database.CheckProductId(productId, product)
+	checkProductId, err := controller.productModel.CheckProductId(productId, product)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Product isn't found",
@@ -106,7 +115,7 @@ func DeleteProductFromCartController(c echo.Context) error {
 
 	//check is product id and cart id exist on table cart_detail
 	var cartDetails models.CartDetails
-	checkProductAndCartId, err := database.CheckProductAndCartId(productId, cartId, cartDetails)
+	checkProductAndCartId, err := controller.cartDetailModel.CheckProductAndCartId(productId, cartId, cartDetails)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Cant find product id and cart id",
@@ -115,16 +124,16 @@ func DeleteProductFromCartController(c echo.Context) error {
 	}
 
 	//---------delete product------//
-	countProduct, _ := database.CountProductOnCart(cartId) //count product
+	countProduct, _ := controller.cartDetailModel.CountProductOnCart(cartId) //count product
 	var deleteProduct interface{}
 	var newTotalQty, newTotalPrice int
 
 	if countProduct > 1 { //if product on cart > 1, delete product on cart detail + update total on cart
-		deleteProduct, _ = database.DeleteProductFromCart(cartId, productId)
-		newTotalQty, newTotalPrice = UpdateTotalCart(cartId)
+		deleteProduct, _ = controller.cartDetailModel.DeleteProductFromCart(cartId, productId)
+		newTotalQty, newTotalPrice = controller.cartModel.UpdateTotalCart(cartId)
 	} else if countProduct == 1 { //if product only 1, delete product on cart detail + delete cart + output total = 0
-		deleteProduct, _ = database.DeleteProductFromCart(cartId, productId)
-		database.DeleteCart(cartId)
+		deleteProduct, _ = controller.cartDetailModel.DeleteProductFromCart(cartId, productId)
+		controller.cartDetailModel.DeleteCart(cartId)
 		newTotalPrice = 0
 		newTotalQty = 0
 	}

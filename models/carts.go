@@ -1,10 +1,7 @@
 package models
 
 import (
-	"altastore/config"
-
 	"gorm.io/gorm"
-
 )
 
 type Carts struct {
@@ -33,17 +30,17 @@ func (m *GormCartsModel) NewCartsModel(db *gorm.DB) *GormCartsModel {
 	return &GormCartsModel{db: db}
 }
 type CartModel interface {
-	CreateCart(cart []Carts) ([]Carts, error)
-	GetCart(cartId int) ([]Carts, error)
+	CreateCart(cart Carts) (Carts, error)
+	GetCart(cartId int) (Carts, error)
 	GetTotalPrice(cartId int) (int, error)
 	GetTotalQty(cartId int) (int, error)
 	UpdateTotalCart(cartId int, newTotalPrice int, newTotalQty int) (Carts, error)
 	CheckCartId(cartId int) (interface{}, error)
-	GetCartById(id int) ([]Carts, error)
-	DeleteCart(cartId int) (cart []Carts, err error)
+	GetCartById(id int) (Carts, error)
+	DeleteCart(cartId int) (cart Carts, err error)
 }
 
-func (m *GormCartsModel) CreateCart(cart []Carts) ([]Carts, error) {
+func (m *GormCartsModel) CreateCart(cart Carts) (Carts, error) {
 	if err := m.db.Save(&cart).Error; err != nil {
 		return cart, err
 	}
@@ -51,8 +48,8 @@ func (m *GormCartsModel) CreateCart(cart []Carts) ([]Carts, error) {
 }
 
 // get cart by id
-func (m *GormCartsModel) GetCart(cartId int) ([]Carts, error) {
-	var cart []Carts
+func (m *GormCartsModel) GetCart(cartId int) (Carts, error) {
+	var cart Carts
 	if err := m.db.Find(&cart, "id=?", cartId).Error; err != nil {
 		return cart, err
 	}
@@ -105,8 +102,8 @@ func (m *GormCartsModel) CheckCartId(cartId int) (interface{}, error) {
 }
 
 // get cart by id
-func (m *GormCartsModel) GetCartById(id int) ([]Carts, error) {
-	var cart []Carts
+func (m *GormCartsModel) GetCartById(id int) (Carts, error) {
+	var cart Carts
 	if err := m.db.Find(&cart, "id=?", id).Error; err != nil {
 		return cart, err
 	}
