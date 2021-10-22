@@ -20,17 +20,19 @@ func main() {
 	//initialize database connection based on given config
 	db := util.MysqlDatabaseConnection(config)
 
-	//initiate user model
+	//initiate model
 	customerModel := models.NewCustomerModel(db)
+	categoryModel := models.NewCategoryModel(db)
 
-	//initiate user controller
-	newCustomerController := controllers.NewController(customerModel)
+	//initiate controller
+	newCustomerController := controllers.NewCustomerController(customerModel)
+	newCategoryController := controllers.NewCategoryController(categoryModel)
 
 	//create echo http
 	e := echo.New()
 
 	//register API path and controller
-	router.Route(e, newCustomerController)
+	router.Route(e, newCustomerController, newCategoryController)
 
 	// run server
 	address := fmt.Sprintf("localhost:%d", config.Port)
