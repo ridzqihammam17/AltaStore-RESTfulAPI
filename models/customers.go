@@ -30,25 +30,25 @@ func NewCustomerModel(db *gorm.DB) *GormCustomerModel {
 
 // Interface Customer
 type CustomerModel interface {
-	GetAll() ([]Customer, error)
 	// Get(customerId int) (Customer, error)
-	Insert(Customer) (Customer, error)
+	Register(Customer) (Customer, error)
+	GetAll() ([]Customer, error)
 	// Edit(csutomer Customer, customerId int) (Customer, error)
 	// Delete(customerId int) (Customer, error)
 	// Login(email, password string) (Customer, error)
+}
+
+func (m *GormCustomerModel) Register(customer Customer) (Customer, error) {
+	if err := m.db.Save(&customer).Error; err != nil {
+		return customer, err
+	}
+	return customer, nil
 }
 
 func (m *GormCustomerModel) GetAll() ([]Customer, error) {
 	var customer []Customer
 	if err := m.db.Find(&customer).Error; err != nil {
 		return nil, err
-	}
-	return customer, nil
-}
-
-func (m *GormCustomerModel) Insert(customer Customer) (Customer, error) {
-	if err := m.db.Save(&customer).Error; err != nil {
-		return customer, err
 	}
 	return customer, nil
 }
