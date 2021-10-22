@@ -10,8 +10,8 @@ type Product struct {
 	Price string `json:"price" form:"price"`
 	Stock string `json:"stock" form:"stock"`
 
-	//1 to many with carts
-	// Carts []Carts `gorm:"foreignKey:CustomersID"`
+	//1 to many with category
+	Categories []Category `gorm:"foreignKey:CategoryID"`
 }
 
 type GormProductModel struct {

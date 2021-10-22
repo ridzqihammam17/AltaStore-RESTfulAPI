@@ -1,4 +1,4 @@
-package customers
+package controllers
 
 import (
 	"altastore/models"

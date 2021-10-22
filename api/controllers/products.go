@@ -1,7 +1,6 @@
-package products
+package controllers
 
 import (
-	"altastore/api/common"
 	"altastore/models"
 	"net/http"
 	"strconv"
@@ -9,49 +8,70 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-type Controller struct {
+type ProductController struct {
 	productModel models.ProductModel
 }
 
-func NewController(productModel models.ProductModel) *Controller {
-	return &Controller{
+func NewProductController(productModel models.ProductModel) *ProductController {
+	return &ProductController{
 		productModel,
 	}
 }
 
-func (controller *Controller) GetAllProductController(c echo.Context) error {
+func (controller *ProductController) GetAllProductController(c echo.Context) error {
 	product, err := controller.productModel.GetAll()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
-	return c.JSON(http.StatusOK, product)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Get All Product",
+		"data":    product,
+	})
 }
 
-func (controller *Controller) GetProductController(c echo.Context) error {
+func (controller *ProductController) GetProductController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
 	product, err := controller.productModel.Get(id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
-	response := models.Product{
-		Name:  product.Name,
-		Price: product.Price,
-		Stock: product.Stock,
-	}
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Get Product",
+		"data":    product,
+	})
 }
 
-func (controller *Controller) PostProductController(c echo.Context) error {
+func (controller *ProductController) PostProductController(c echo.Context) error {
 	// bind request value
 	var productRequest models.Product
 	if err := c.Bind(&productRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
 	product := models.Product{
@@ -61,22 +81,38 @@ func (controller *Controller) PostProductController(c echo.Context) error {
 	}
 	_, err := controller.productModel.Insert(product)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"success": false,
+			"code":    500,
+			"message": "Internal Server Error",
+		})
 	}
 
-	return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Add Product",
+	})
 }
 
-func (controller *Controller) UpdateProductController(c echo.Context) error {
+func (controller *ProductController) UpdateProductController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
 	// bind request value
 	var productRequest models.Product
 	if err := c.Bind(&productRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
 	product := models.Product{
@@ -86,21 +122,41 @@ func (controller *Controller) UpdateProductController(c echo.Context) error {
 	}
 
 	if _, err := controller.productModel.Edit(product, id); err != nil {
-		return c.JSON(http.StatusNotFound, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
-	return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Edit Category",
+	})
 }
 
-func (controller *Controller) DeleteProductController(c echo.Context) error {
+func (controller *ProductController) DeleteProductController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
 	if _, err := controller.productModel.Delete(id); err != nil {
-		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
-	return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"code":    200,
+		"message": "Success Delete Product",
+	})
 }
