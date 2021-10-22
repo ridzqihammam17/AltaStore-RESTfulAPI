@@ -7,17 +7,17 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-type Controller struct {
+type CustomerController struct {
 	customerModel models.CustomerModel
 }
 
-func NewController(customerModel models.CustomerModel) *Controller {
-	return &Controller{
+func NewCustomerController(customerModel models.CustomerModel) *CustomerController {
+	return &CustomerController{
 		customerModel,
 	}
 }
 
-func (controller *Controller) RegisterCustomerController(c echo.Context) error {
+func (controller *CustomerController) RegisterCustomerController(c echo.Context) error {
 	var customerRequest models.Customer
 	if err := c.Bind(&customerRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -50,7 +50,7 @@ func (controller *Controller) RegisterCustomerController(c echo.Context) error {
 	})
 }
 
-func (controller *Controller) LoginCustomerController(c echo.Context) error {
+func (controller *CustomerController) LoginCustomerController(c echo.Context) error {
 	var customerRequest models.Customer
 
 	if err := c.Bind(&customerRequest); err != nil {
@@ -78,7 +78,7 @@ func (controller *Controller) LoginCustomerController(c echo.Context) error {
 	})
 }
 
-func (controller *Controller) GetAllCustomerController(c echo.Context) error {
+func (controller *CustomerController) GetAllCustomerController(c echo.Context) error {
 	customer, err := controller.customerModel.GetAll()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{

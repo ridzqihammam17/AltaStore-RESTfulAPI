@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	products "altastore/api/controllers"
-	"altastore/api/controllers/customers"
+	"altastore/api/controllers"
 	"altastore/api/router"
 	"altastore/config"
 	"altastore/models"
@@ -21,19 +20,21 @@ func main() {
 	//initialize database connection based on given config
 	db := util.MysqlDatabaseConnection(config)
 
-	//initiate user model
+	//initiate model
 	customerModel := models.NewCustomerModel(db)
 	productModel := models.NewProductModel(db)
+	categoryModel := models.NewCategoryModel(db)
 
-	//initiate user controller
-	newCustomerController := customers.NewController(customerModel)
-	newProductController := products.NewController(productModel)
+	//initiate controller
+	newCustomerController := controllers.NewCustomerController(customerModel)
+	newProductController := controllers.NewProductController(productModel)
+	newCategoryController := controllers.NewCategoryController(categoryModel)
 
 	//create echo http
 	e := echo.New()
 
 	//register API path and controller
-	router.Route(e, newCustomerController, newProductController)
+	router.Route(e, newCustomerController, newProductController, newCategoryController)
 
 	// run server
 	address := fmt.Sprintf("localhost:%d", config.Port)

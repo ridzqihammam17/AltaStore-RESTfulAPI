@@ -2,14 +2,17 @@ package router
 
 import (
 	"altastore/api/controllers"
-	"altastore/api/controllers/customers"
 	"altastore/constants"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Route(e *echo.Echo, customerController *customers.Controller, productController *controllers.Controller) {
+func Route(e *echo.Echo,
+	customerController *controllers.CustomerController,
+	productController *controllers.ProductController,
+	categoryController *controllers.CategoryController,
+) {
 	// ------------------------------------------------------------------
 	// Login & Register
 	// ------------------------------------------------------------------
@@ -19,19 +22,19 @@ func Route(e *echo.Echo, customerController *customers.Controller, productContro
 	// Auth JWT
 	eAuth := e.Group("")
 	eAuth.Use(middleware.JWT([]byte(constants.SECRET_JWT)))
+
+	// Customers
 	eAuth.GET("/api/customers", customerController.GetAllCustomerController)
 
-	// Product
-	e.GET("/api/product/", productController.GetAllProductController)
-	e.GET("/api/product", productController.GetAllProductController)
-	eAuth.POST("/api/product/", productController.PostProductController)
-	eAuth.POST("/api/product", productController.PostProductController)
-	e.GET("/api/product/:id/", productController.GetProductController)
-	e.GET("/api/product/:id", productController.GetProductController)
-	eAuth.PUT("/api/product/:id/", productController.UpdateProductController)
-	eAuth.PUT("/api/product/:id", productController.UpdateProductController)
-	eAuth.DELETE("/api/product/:id/", productController.DeleteProductController)
-	eAuth.DELETE("/api/product/:id", productController.DeleteProductController)
+	// ------------------------------------------------------------------
+	// CRUD Product
+	// ------------------------------------------------------------------
+	e.GET("/api/products", productController.GetAllProductController)
+	eAuth.POST("/api/products", productController.PostProductController)
+	e.GET("/api/products/:id", productController.GetProductController)
+	eAuth.PUT("/api/products/:id", productController.UpdateProductController)
+	eAuth.DELETE("/api/products/:id", productController.DeleteProductController)
+
 	// e.GET("/api/product/category/", productController.GetProductCategoryController)
 	// e.GET("/api/product/category", productController.GetProductCategoryController)
 
@@ -68,4 +71,14 @@ func Route(e *echo.Echo, customerController *customers.Controller, productContro
 	// eAuth.PUT("/api/cart/:id", cartController.UpdateCategoryController)
 	// eAuth.DELETE("/api/cart/:id/", cartController.DeleteCategoryController)
 	// eAuth.DELETE("/api/cart/:id", cartController.DeleteCategoryController)
+
+	// ------------------------------------------------------------------
+	// CRUD Categories
+	// ------------------------------------------------------------------
+	eAuth.GET("/api/categories", categoryController.GetAllCategoryController)
+	eAuth.GET("/api/categories/:id", categoryController.GetCategoryController)
+	eAuth.POST("/api/categories", categoryController.AddCategoryController)
+	eAuth.PUT("/api/categories/:id", categoryController.EditCategoryController)
+	eAuth.DELETE("/api/categories/:id", categoryController.DeleteCategoryController)
+
 }
