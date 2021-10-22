@@ -1,15 +1,15 @@
 package router
 
 import (
+	"altastore/api/controllers"
 	"altastore/api/controllers/customers"
-	"altastore/api/controllers/products"
 	"altastore/constants"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Route(e *echo.Echo, customerController *customers.Controller, productController *products.Controller) {
+func Route(e *echo.Echo, customerController *customers.Controller, productController *controllers.Controller) {
 	// ------------------------------------------------------------------
 	// Login & Register
 	// ------------------------------------------------------------------

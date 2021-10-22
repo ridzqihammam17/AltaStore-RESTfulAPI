@@ -39,7 +39,7 @@ func (controller *Controller) GetProductController(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
 
-	response := GetProductResponse{
+	response := models.Product{
 		Name:  product.Name,
 		Price: product.Price,
 		Stock: product.Stock,
@@ -49,7 +49,7 @@ func (controller *Controller) GetProductController(c echo.Context) error {
 
 func (controller *Controller) PostProductController(c echo.Context) error {
 	// bind request value
-	var productRequest PostProductRequest
+	var productRequest models.Product
 	if err := c.Bind(&productRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
@@ -74,7 +74,7 @@ func (controller *Controller) UpdateProductController(c echo.Context) error {
 	}
 
 	// bind request value
-	var productRequest EditProductRequest
+	var productRequest models.Product
 	if err := c.Bind(&productRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}

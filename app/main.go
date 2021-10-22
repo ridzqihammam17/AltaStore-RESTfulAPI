@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
+	products "altastore/api/controllers"
 	"altastore/api/controllers/customers"
-	"altastore/api/controllers/products"
 	"altastore/api/router"
 	"altastore/config"
 	"altastore/models"
