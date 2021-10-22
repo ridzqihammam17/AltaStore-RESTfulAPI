@@ -1,4 +1,4 @@
-package product
+package products
 
 import (
 	"altastore/api/common"
@@ -67,7 +67,7 @@ func (controller *Controller) PostProductController(c echo.Context) error {
 	return c.JSON(http.StatusOK, common.NewSuccessOperationResponse())
 }
 
-func (controller *Controller) EditProductController(c echo.Context) error {
+func (controller *Controller) UpdateProductController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())

@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 
-	"altastore/api/controllers"
+	"altastore/api/controllers/customers"
+	"altastore/api/controllers/products"
 	"altastore/api/router"
 	"altastore/config"
 	"altastore/models"
@@ -22,15 +23,17 @@ func main() {
 
 	//initiate user model
 	customerModel := models.NewCustomerModel(db)
+	productModel := models.NewProductModel(db)
 
 	//initiate user controller
-	newCustomerController := controllers.NewController(customerModel)
+	newCustomerController := customers.NewController(customerModel)
+	newProductController := products.NewController(productModel)
 
 	//create echo http
 	e := echo.New()
 
 	//register API path and controller
-	router.Route(e, newCustomerController)
+	router.Route(e, newCustomerController, newProductController)
 
 	// run server
 	address := fmt.Sprintf("localhost:%d", config.Port)

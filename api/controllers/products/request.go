@@ -1,4 +1,4 @@
-package product
+package products
 
 type PostProductRequest struct {
 	Name  string `json:"name" form:"name"`

@@ -1,4 +1,4 @@
-package product
+package products
 
 type GetProductResponse struct {
 	Name  string `json:"name" form:"name"`
