@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -18,48 +17,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMain(m *testing.M) {
-	setup()
-	os.Exit(m.Run())
-}
-
-func setup() {
-	// create database connection
-	config := config.GetConfig()
-	db := util.MysqlDatabaseConnection(config)
-
-	// cleaning data before testing
-	db.Migrator().DropTable(&models.Product{})
-	db.AutoMigrate(&models.Product{})
-	db.Migrator().DropTable(&models.Customer{})
-	db.AutoMigrate(&models.Customer{})
-	// preparate dummy data
-	var newCustomer models.Customer
-	newCustomer.Name = "Ilham"
-	newCustomer.Email = "ilham@gmail.com"
-	newCustomer.Password = "pass123"
-
-	var newProduct models.Product
-	newProduct.Name = "Product A"
-	newProduct.Price = 10000
-	newProduct.Stock = 100
-
-	// user dummy data with model
-	customerModel := models.NewCustomerModel(db)
-	_, err := customerModel.Register(newCustomer)
-	if err != nil {
-		fmt.Println(err)
-	}
-	productModel := models.NewProductModel(db)
-	_, err = productModel.Insert(newProduct)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-}
-
 func TestGetAllProductController(t *testing.T) {
 	// create database connection and create controller
+	setup()
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	productModel := models.NewProductModel(db)
