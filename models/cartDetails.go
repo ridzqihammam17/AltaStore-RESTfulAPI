@@ -24,15 +24,15 @@ func (m *GormCartDetailsModel) NewCartDetailsModel(db *gorm.DB) *GormCartDetails
 }
 
 type CartDetailsModel interface {
-	CheckProductAndCartId(productId, cartId int, cartDetails []CartDetails) (interface{}, error)
-	GetCartDetailByCartId(cartId int) ([]CartDetails, error)
-	AddToCart(cartDetails []CartDetails) ([]CartDetails, error)
+	CheckProductAndCartId(productId, cartId int, cartDetails CartDetails) (interface{}, error)
+	GetCartDetailByCartId(cartId int) (CartDetails, error)
+	AddToCart(cartDetails CartDetails) (CartDetails, error)
 	DeleteProductFromCart(cartId, productId int) (interface{}, error)
 	GetListProductCart(cartId int) (interface{}, error)
 	CountProductOnCart(cartId int) (int, error)
 	CountProductandPriceOnCart(cartId int) (int, int, error)
 }
-func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cartDetails []CartDetails) (interface{}, error) {
+func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cartDetails CartDetails) (interface{}, error) {
 	if err := m.db.Where("carts_id=? AND products_id=?", cartId, productId).First(&cartDetails).Error; err != nil {
 		return nil, err
 	}
@@ -40,16 +40,16 @@ func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cart
 }
 
 // get product by id
-func (m *GormCartDetailsModel) GetProduct(productId int) ([]Product, error) {
-	var product []Product
+func (m *GormCartDetailsModel) GetProduct(productId int) (Product, error) {
+	var product Product
 	if err := m.db.Find(&product, "id=?", productId).Error; err != nil {
 		return product, err
 	}
 	return product, nil
 }
 //Get cart details by Cart ID
-func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) ([]CartDetails, error) {
-	var cartDetails []CartDetails
+func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) (CartDetails, error) {
+	var cartDetails CartDetails
 	if err := m.db.Find(&cartDetails, "carts_id=?", cartId).Error; err != nil {
 		return cartDetails, err
 	}
@@ -57,7 +57,7 @@ func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) ([]CartDetails,
 }
 
 //add product to cart
-func (m *GormCartDetailsModel) AddToCart(cartDetails []CartDetails) ([]CartDetails, error) {
+func (m *GormCartDetailsModel) AddToCart(cartDetails CartDetails) (CartDetails, error) {
 	if err := m.db.Save(&cartDetails).Error; err != nil {
 		return cartDetails, err
 	}
@@ -66,7 +66,7 @@ func (m *GormCartDetailsModel) AddToCart(cartDetails []CartDetails) ([]CartDetai
 
 //delete product from cart detail
 func (m *GormCartDetailsModel) DeleteProductFromCart(cartId, productId int) (interface{}, error) {
-	var cartDetails []CartDetails
+	var cartDetails CartDetails
 	if err := m.db.Find(&cartDetails, "carts_id=? AND products_id=?", cartId, productId).Unscoped().Delete(&cartDetails).Error; err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (m *GormCartDetailsModel) DeleteProductFromCart(cartId, productId int) (int
 
 //get all products from cart detail
 func (m *GormCartDetailsModel) GetListProductCart(cartId int) (interface{}, error) {
-	var products []Product
+	var products Product
 
 	if err := m.db.Table("products").Joins("JOIN cart_details ON products.id = cart_details.products_id").Joins("JOIN carts ON cart_details.carts_id = carts.id").Where("carts.id=?", cartId).Find(&products).Error; err != nil {
 		return products, nil

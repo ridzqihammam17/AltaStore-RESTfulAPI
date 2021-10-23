@@ -68,15 +68,25 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 	getProduct, _ := controller.productModel.Get(productId)
 	productPrice, _ := strconv.Atoi(getProduct.Price)
 	//set data cart details
-	cartDetails = CartDetails{
-		ProductsID: productId,
-		CartsID:    cartId,
-		Quantity:   cartDetails.Quantity,
-		Price:      productPrice,
+
+	var cartRequest models.CartDetails
+	if err := c.Bind(&cartRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"success": false,
+			"code":    400,
+			"message": "Bad Request",
+		})
 	}
 
+	cartItem := models.CartDetails{
+		ProductsID: cartRequest.ProductsID,
+		Quantity: cartRequest.Quantity,
+		Price: cartRequest.Price,
+	}
+
+
 	//create cart detail
-	newCartDetail, _ := controller.cartDetailsModel.AddToCart(cartDetails)
+	newCartDetail, _ := controller.cartDetailsModel.AddToCart(cartItem)
 	//update total quantity and total price on table carts
 	newTotalQty, newTotalPrice := controller.cartModel.UpdateTotalCart(cartId, productPrice, 1)
 
@@ -124,7 +134,11 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 	}
 
 	//check is product id and cart id exist on table cart_detail
-	var cartDetails []CartDetails
+	var cartDetails = models.CartDetails{
+		ProductsID: productId,
+		CartsID: cartId,
+	}
+
 	checkProductAndCartId, err := controller.cartDetailsModel.CheckProductAndCartId(productId, cartId, cartDetails)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{

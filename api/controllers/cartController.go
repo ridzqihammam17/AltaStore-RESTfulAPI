@@ -66,7 +66,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 	}
 
 	// check product id on table product
-	var product models.Product
+
 	checkProductId, err := controller.productModel.CheckProductId(productId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{

@@ -67,7 +67,7 @@ func (m *GormCartsModel) GetTotalPrice(cartId int) (int, error) {
 
 //get total quantity
 func (m *GormCartsModel) GetTotalQty(cartId int) (int, error) {
-	var cartDetails []CartDetails
+	var cartDetails CartDetails
 	var totalQty int
 	if err := m.db.Model(&cartDetails).Select("SUM(cart_details.quantity)").Joins("JOIN carts ON carts.id = cart_details.carts_id").Where("carts_id=?", cartId).First(&totalQty).Error; err == nil {
 		return totalQty, err
@@ -111,7 +111,7 @@ func (m *GormCartsModel) GetCartById(id int) (Carts, error) {
 }
 
 //delete cart
-func (m *GormCartsModel) DeleteCart(cartId int) (cart []Carts, err error) {
+func (m *GormCartsModel) DeleteCart(cartId int) (cart Carts, err error) {
 
 	if err := m.db.Find(&cart, "id=?", cartId).Unscoped().Delete(&cart).Error; err != nil {
 		return cart, err
