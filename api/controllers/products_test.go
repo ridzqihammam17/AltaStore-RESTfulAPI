@@ -31,16 +31,27 @@ func setup() {
 	// cleaning data before testing
 	db.Migrator().DropTable(&models.Product{})
 	db.AutoMigrate(&models.Product{})
-
+	db.Migrator().DropTable(&models.Customer{})
+	db.AutoMigrate(&models.Customer{})
 	// preparate dummy data
+	var newCustomer models.Customer
+	newCustomer.Name = "Ilham"
+	newCustomer.Email = "ilham@gmail.com"
+	newCustomer.Password = "pass123"
+
 	var newProduct models.Product
 	newProduct.Name = "Product A"
-	newProduct.Price = "10000"
-	newProduct.Stock = "100"
+	newProduct.Price = 10000
+	newProduct.Stock = 100
 
 	// user dummy data with model
-	customerModel := models.NewProductModel(db)
-	_, err := customerModel.Insert(newProduct)
+	customerModel := models.NewCustomerModel(db)
+	_, err := customerModel.Register(newCustomer)
+	if err != nil {
+		fmt.Println(err)
+	}
+	productModel := models.NewProductModel(db)
+	_, err = productModel.Insert(newProduct)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -84,8 +95,8 @@ func TestGetAllProductController(t *testing.T) {
 	assert.NotEmpty(t, response.Data)
 	assert.Equal(t, 1, len(response.Data))
 	assert.Equal(t, "Product A", response.Data[0].Name)
-	assert.Equal(t, "10000", response.Data[0].Price)
-	assert.Equal(t, "100", response.Data[0].Stock)
+	assert.Equal(t, 10000, response.Data[0].Price)
+	assert.Equal(t, 100, response.Data[0].Stock)
 
 }
 
@@ -127,8 +138,8 @@ func TestGetProductController(t *testing.T) {
 	assert.Equal(t, "Success Get All Product", response.Message)
 	assert.NotEmpty(t, response.Data)
 	assert.Equal(t, "Product A", response.Data.Name)
-	assert.Equal(t, "10000", response.Data.Price)
-	assert.Equal(t, "100", response.Data.Stock)
+	assert.Equal(t, 10000, response.Data.Price)
+	assert.Equal(t, 100, response.Data.Stock)
 
 }
 
