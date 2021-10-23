@@ -30,6 +30,7 @@ type CartDetailsModel interface {
 	DeleteProductFromCart(cartId, productId int) (interface{}, error)
 	GetListProductCart(cartId int) (interface{}, error)
 	CountProductOnCart(cartId int) (int, error)
+	CountProductandPriceOnCart(cartId int) (int, int, error)
 }
 func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cartDetails []CartDetails) (interface{}, error) {
 	if err := m.db.Where("carts_id=? AND products_id=?", cartId, productId).First(&cartDetails).Error; err != nil {
@@ -90,3 +91,10 @@ func (m *GormCartDetailsModel) CountProductOnCart(cartId int) (int, error) {
 	return countProduct, nil
 }
 
+func (m *GormCartDetailsModel) CountProductandPriceOnCart(cartId int) (int, int, error) {
+	var countProduct, Price int
+	if err := m.db.Select("COUNT(carts_id), Price").Where("carts_id=?", cartId).First(&countProduct).Error; err == nil {
+		return countProduct, Price, err
+	}
+	return countProduct, Price, nil
+}

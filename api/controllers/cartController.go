@@ -37,7 +37,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 
 	//check product id on table product
 	paymentId := cart.PaymentMethodsID
-	var payment models.PaymentMethods
+	//var payment models.PaymentMethods
 	/*checkPayment, err := controller.cartModel.CheckPayment(paymentId, payment)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -76,24 +76,24 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 	}
 
 	//get price
-	getProduct, _ := controller.productModel.CheckProductId(productId)
+	getProduct, _ := controller.productModel.Get(productId)
 
 	//convert qty
 	qty, _ := strconv.Atoi(c.Param("qty"))
-
+	productPrice, _ := strconv.Atoi(getProduct.Price)
 	//set data cart details
 	cartDetails := models.CartDetails{
 		ProductsID: productId,
 		CartsID:    newCart.ID,
 		Quantity:   qty,
-		Price:      getProduct.Price,
+		Price:      productPrice,
 	}
 
 	//create cart detail
-	newCartDetail, _ := controller.cartModel.AddToCart(cartDetails)
+	newCartDetail, _ := controller.cartDetailModel.AddToCart(cartDetails)
 
 	//update total quantity and total price on table carts
-	controller.cartModel.UpdateTotalCart(newCart.ID)
+	controller.cartModel.UpdateTotalCart(newCart.ID,productPrice,qty)
 
 	//get cart updated (total qty&total price)
 	updatedCart, _ := controller.cartModel.GetCart(newCart.ID)

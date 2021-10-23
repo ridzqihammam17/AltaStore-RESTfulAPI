@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"altastore/models"
 
@@ -10,16 +11,29 @@ import (
 )
 
 type CartDetailsController struct {
-	cartDetailModel models.CartDetailsModel
+	cartModel models.CartModel
+	cartDetailsModel models.CartDetailsModel
+	productModel models.ProductModel
 }
 
-func NewCartDetailController(cartDetailsModel models.CartDetails) *CartDetailsController {
+func NewCartDetailController(cartModel models.CartModel, cartDetailsModel models.CartDetailsModel, productModel models.ProductModel) *CartDetailsController {
 	return &CartDetailsController{
+		cartModel,
 		cartDetailsModel,
+		productModel,
 	}
 }
+
+type CartDetails struct {
+	ProductsID int `json:"products_id" form:"products_id"`
+	CartsID    int `json:"carts_id" form:"carts_id"`
+	Quantity   int `json:"quantity" form:"quantity"`
+	Price      int `json:"price" form:"price"`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
 func (controller *CartDetailsController) AddToCartController(c echo.Context) error {
-	var cart models.Carts
+
 
 	//check id cart is exist
 	cartId, err := strconv.Atoi(c.Param("cartId"))
@@ -28,7 +42,7 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 			"message": "Cart Id is Invalid",
 		})
 	}
-	checkCartId, err := controller.cartDetailModel.CheckCartId(cartId, cart)
+	checkCartId, err := controller.cartModel.CheckCartId(cartId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Can't find cart",
@@ -38,13 +52,11 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 
 	// record user's input
 	var cartDetails models.CartDetails
-	c.Bind(&cartDetails) //entry key: productid, qty
+	c.Bind(&cartDetails) //entry key: product id, qty
 
 	//check product id on table product
 	productId := cartDetails.ProductsID //get product_id
-	var product models.Products
-	checkProductId, err := controller.cartDetailModel
-	.CheckProductId(productId, product)
+	checkProductId, err := controller.productModel.CheckProductId(productId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Can't find product",
@@ -53,21 +65,20 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 	}
 
 	//get price
-	getProduct, _ := controller.cartDetailModel.GetProduct(productId)
-
+	getProduct, _ := controller.productModel.Get(productId)
+	productPrice, _ := strconv.Atoi(getProduct.Price)
 	//set data cart details
-	cartDetails = models.CartDetails{
+	cartDetails = CartDetails{
 		ProductsID: productId,
 		CartsID:    cartId,
 		Quantity:   cartDetails.Quantity,
-		Price:      getProduct.Price,
+		Price:      productPrice,
 	}
 
 	//create cart detail
-	newCartDetail, _ := controller.cartDetailModel.AddToCart(cartDetails)
-
+	newCartDetail, _ := controller.cartDetailsModel.AddToCart(cartDetails)
 	//update total quantity and total price on table carts
-	newTotalQty, newTotalPrice := controller.cartDetailModel.UpdateTotalCart(cartId)
+	newTotalQty, newTotalPrice := controller.cartModel.UpdateTotalCart(cartId, productPrice, 1)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"cartDetails":    newCartDetail,
@@ -87,8 +98,7 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 	}
 
 	//check is cart id exist on table cart
-	var cart models.Carts
-	checkCartId, err := controller.cartModel.CheckCartId(cartId, cart)
+	checkCartId, err := controller.cartModel.CheckCartId(cartId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Cart isn't found",
@@ -105,8 +115,7 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 	}
 
 	//check is product id exist on table product
-	var product models.Products
-	checkProductId, err := controller.productModel.CheckProductId(productId, product)
+	checkProductId, err := controller.productModel.CheckProductId(productId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Product isn't found",
@@ -115,8 +124,8 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 	}
 
 	//check is product id and cart id exist on table cart_detail
-	var cartDetails models.CartDetails
-	checkProductAndCartId, err := controller.cartDetailModel.CheckProductAndCartId(productId, cartId, cartDetails)
+	var cartDetails []CartDetails
+	checkProductAndCartId, err := controller.cartDetailsModel.CheckProductAndCartId(productId, cartId, cartDetails)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":     "Cant find product id and cart id",
@@ -125,16 +134,16 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 	}
 
 	//---------delete product------//
-	countProduct, _ := controller.cartDetailModel.CountProductOnCart(cartId) //count product
+	countProduct, _ := controller.cartDetailsModel.CountProductOnCart(cartId) //count product
 	var deleteProduct interface{}
-	var newTotalQty, newTotalPrice int
+	newTotalQty, newTotalPrice, _ := controller.cartDetailsModel.CountProductandPriceOnCart(cartId)
 
 	if countProduct > 1 { //if product on cart > 1, delete product on cart detail + update total on cart
-		deleteProduct, _ = controller.cartDetailModel.DeleteProductFromCart(cartId, productId)
-		newTotalQty, newTotalPrice = controller.cartModel.UpdateTotalCart(cartId)
+		deleteProduct, _ = controller.cartDetailsModel.DeleteProductFromCart(cartId, productId)
+		controller.cartModel.UpdateTotalCart(cartId, newTotalPrice, countProduct-1)
 	} else if countProduct == 1 { //if product only 1, delete product on cart detail + delete cart + output total = 0
-		deleteProduct, _ = controller.cartDetailModel.DeleteProductFromCart(cartId, productId)
-		controller.cartDetailModel.DeleteCart(cartId)
+		deleteProduct, _ = controller.cartDetailsModel.DeleteProductFromCart(cartId, productId)
+		controller.cartModel.DeleteCart(cartId)
 		newTotalPrice = 0
 		newTotalQty = 0
 	}
