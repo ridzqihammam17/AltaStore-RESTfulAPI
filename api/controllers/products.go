@@ -58,7 +58,7 @@ func (controller *ProductController) GetProductController(c echo.Context) error 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
 		"code":    200,
-		"message": "Success Get Product",
+		"message": "Success Get All Product",
 		"data":    product,
 	})
 }
