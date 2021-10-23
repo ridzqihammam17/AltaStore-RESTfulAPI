@@ -6,10 +6,9 @@ import (
 
 type Category struct {
 	gorm.Model
-	// ID       int    `gorm:"primaryKey" json:"id" form:"id"`
 	Name string `json:"name" form:"name"`
-	//1 to many with products
-	// Products Product `gorm:"foreignKey:ProductsID"`
+
+	Products []Product `gorm:"ForeignKey:CategoryID"`
 }
 
 type GormCategoryModel struct {
@@ -39,7 +38,7 @@ func (m *GormCategoryModel) GetAll() ([]Category, error) {
 
 func (m *GormCategoryModel) Get(categoryId int) (Category, error) {
 	var category Category
-	if err := m.db.Find(&category, categoryId).Error; err != nil {
+	if err := m.db.Where("id=?", categoryId).First(&category).Error; err != nil {
 		return category, err
 	}
 	return category, nil
