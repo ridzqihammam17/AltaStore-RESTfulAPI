@@ -1,8 +1,9 @@
 package models
 
 import (
-	// "altastore/middlewares"
+	"altastore/api/middlewares"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -30,25 +31,60 @@ func NewCustomerModel(db *gorm.DB) *GormCustomerModel {
 
 // Interface Customer
 type CustomerModel interface {
-	GetAll() ([]Customer, error)
 	// Get(customerId int) (Customer, error)
-	Insert(Customer) (Customer, error)
+	Register(Customer) (Customer, error)
+	Login(email, password string) (Customer, error)
+	GetAll() ([]Customer, error)
 	// Edit(csutomer Customer, customerId int) (Customer, error)
 	// Delete(customerId int) (Customer, error)
-	// Login(email, password string) (Customer, error)
+}
+
+func (m *GormCustomerModel) Register(customer Customer) (Customer, error) {
+	// Encrypt Password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(customer.Password), bcrypt.MinCost)
+	if err != nil {
+		return customer, err
+	}
+
+	customer.Password = string(hashedPassword)
+
+	if err := m.db.Save(&customer).Error; err != nil {
+		return customer, err
+	}
+	return customer, nil
+}
+
+func (m *GormCustomerModel) Login(email, password string) (Customer, error) {
+	var customer Customer
+	var err error
+
+	if err = m.db.Where("email = ?", email).First(&customer).Error; err != nil {
+		return customer, err
+	}
+
+	// Checking Encrypt Password
+	err = bcrypt.CompareHashAndPassword([]byte(customer.Password), []byte(password))
+	if err != nil {
+		return customer, err
+	}
+
+	customer.Token, err = middlewares.CreateToken(int(customer.ID))
+
+	if err != nil {
+		return customer, err
+	}
+
+	if err := m.db.Save(customer).Error; err != nil {
+		return customer, err
+	}
+
+	return customer, nil
 }
 
 func (m *GormCustomerModel) GetAll() ([]Customer, error) {
 	var customer []Customer
 	if err := m.db.Find(&customer).Error; err != nil {
 		return nil, err
-	}
-	return customer, nil
-}
-
-func (m *GormCustomerModel) Insert(customer Customer) (Customer, error) {
-	if err := m.db.Save(&customer).Error; err != nil {
-		return customer, err
 	}
 	return customer, nil
 }

@@ -1,114 +1,92 @@
 package models
 
 import (
-	"altastore/config"
 	"gorm.io/gorm"
 )
 
-type Products struct {
+type Product struct {
 	gorm.Model
-	ID          int    `gorm:"primaryKey" json:"id" form:"id"`
-	Name        string `json:"name" form:"name"`
-	Code        string `json:"code" form:"code"`
-	Status      string `json:"status" form:"status"`
-	Price       int    `json:"price" form:"price"`
-	Description string `json:"description" form:"description"`
+	ID    int    `gorm:"primaryKey" json:"id" form:"id"`
+	Name  string `json:"name" form:"name"`
+	Price string `json:"price" form:"price"`
+	Stock string `json:"stock" form:"stock"`
 
-	//many to many with carts
-	Carts []*Carts `gorm:"many2many:cart_details"`
-
-	//1 to many with product category
-	ProductCategoriesID int `json:"product_categories_id" form:"product_categories_id"`
+	//1 to many with category
+	// Categories []Category `gorm:"foreignKey:CategoryID"`
 }
 
-
-type GormProductsModel struct {
+type GormProductModel struct {
 	db *gorm.DB
 }
 
-func (m *GormProductsModel) NewCartsModel(db *gorm.DB) *GormCartsModel {
-	return &GormCartsModel{db: db}
+func NewProductModel(db *gorm.DB) *GormProductModel {
+	return &GormProductModel{db: db}
 }
+
+// Interface Product
 type ProductModel interface {
-
+	GetAll() ([]Product, error)
+	Get(productId int) (Product, error)
+	Insert(Product) (Product, error)
+	Edit(product Product, productId int) (Product, error)
+	Delete(productId int) (Product, error)
+	CheckProductId(productId int) (interface{}, error)
 }
 
-//check is product exist on table product
-func (m *GormProductsModel)  CheckProductId(productId int, product []Products) (interface{}, error) {
-	var product []Products
+func (m *GormProductModel) CheckProductId(productId int) (interface{}, error) {
+	var product []Product
 	if err := m.db.Where("id=?", productId).First(&product).Error; err != nil {
 		return nil, err
 	}
-	return product.ID, nil
+	return product, nil
+}
+func (m *GormProductModel) GetAll() ([]Product, error) {
+	var product []Product
+	if err := m.db.Find(&product).Error; err != nil {
+		return nil, err
+	}
+	return product, nil
 }
 
-// get product by id
-func (m *GormProductsModel)  GetProduct(productId int) ([]Products, error) {
-	var product []Products
-	if err := m.db.Find(&product, "id=?", productId).Error; err != nil {
+func (m *GormProductModel) Get(productId int) (Product, error) {
+	var product Product
+	if err := m.db.Find(&product, productId).Error; err != nil {
 		return product, err
 	}
 	return product, nil
 }
 
-func (m *GormProductsModel) GetProducts() (interface{}, error) {
-	var products []Products
-	if err := m.db.Find(&products).Error; err != nil {
-		return nil, err
-	}
-	return products, nil
-}
-
-func (m *GormProductsModel) GetProductid(id int) (interface{}, error) {
-	var product []Products
-	var count int64
-	if err1 := m.db.Model(&product).Where("id=?", id).Count(&count).Error; count == 0 {
-		return nil, err1
-	}
-	if err := m.db.Find(&product, "id=?", id).Error; err != nil {
-		return nil, err
+func (m *GormProductModel) Insert(product Product) (Product, error) {
+	if err := m.db.Save(&product).Error; err != nil {
+		return product, err
 	}
 	return product, nil
 }
 
-func (m *GormProductsModel) CreateProduct(products []Products) (interface{}, error) {
-	if err := m.db.Save(&products).Error; err != nil {
-		return nil, err
+func (m *GormProductModel) Edit(newProduct Product, productId int) (Product, error) {
+	var product Product
+	if err := m.db.Find(&product, productId).Error; err != nil {
+		return product, err
 	}
-	return products, nil
-}
 
-func (m *GormProductsModel) GetProductByProductCategory(name string) (interface{}, error) {
-	var productcategories []ProductCategories
-	if err := m.db.Where("name=?", name).First(&productcategories).Error; err != nil {
-		return nil, err
-	}
-	var products []Products
-	if err := m.db.Find(&products, "product_categories_id=?", productcategories.ID).Error; err != nil {
-		return nil, err
-	}
-	return products, nil
-}
+	product.Name = newProduct.Name
+	product.Price = newProduct.Price
+	product.Stock = newProduct.Stock
 
-func (m *GormProductsModel) DeleteProductById(id int) (interface{}, error) {
-	var products []Products
-	if err := m.db.Where("id=?", id).Delete(&products).Error; err != nil {
-		return nil, err
-	}
-	return products, nil
-}
-
-//update user info from database
-func (m *GormProductsModel) UpdateProduct(product []Products) (interface{}, error) {
-	if tx := m.db.Save(&product).Error; tx != nil {
-		return nil, tx
+	if err := m.db.Save(&product).Error; err != nil {
+		return product, err
 	}
 	return product, nil
 }
 
-//get 1 specified user with User struct output
-func (m *GormProductsModel) GetUpdateProduct(id int) []Products {
-	var product []Products
-	m.db.Find(&product, "id=?", id)
-	return product
+func (m *GormProductModel) Delete(productId int) (Product, error) {
+	var product Product
+	if err := m.db.Find(&product, productId).Error; err != nil {
+		return product, err
+	}
+
+	if err := m.db.Delete(&product).Error; err != nil {
+		return product, err
+	}
+	return product, nil
 }

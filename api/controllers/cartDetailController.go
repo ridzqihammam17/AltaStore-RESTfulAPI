@@ -43,7 +43,8 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 	//check product id on table product
 	productId := cartDetails.ProductsID //get product_id
 	var product models.Products
-	checkProductId, err := controller.cartDetailModel.CheckProductId(productId, product)
+	checkProductId, err := controller.cartDetailModel
+	.CheckProductId(productId, product)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message":        "Can't find product",

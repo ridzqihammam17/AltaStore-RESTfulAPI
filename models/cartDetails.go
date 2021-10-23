@@ -37,6 +37,15 @@ func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cart
 	}
 	return cartDetails, nil
 }
+
+// get product by id
+func (m *GormCartDetailsModel) GetProduct(productId int) ([]Product, error) {
+	var product []Product
+	if err := m.db.Find(&product, "id=?", productId).Error; err != nil {
+		return product, err
+	}
+	return product, nil
+}
 //Get cart details by Cart ID
 func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) ([]CartDetails, error) {
 	var cartDetails []CartDetails
@@ -65,7 +74,7 @@ func (m *GormCartDetailsModel) DeleteProductFromCart(cartId, productId int) (int
 
 //get all products from cart detail
 func (m *GormCartDetailsModel) GetListProductCart(cartId int) (interface{}, error) {
-	var products []Products
+	var products []Product
 
 	if err := m.db.Table("products").Joins("JOIN cart_details ON products.id = cart_details.products_id").Joins("JOIN carts ON cart_details.carts_id = carts.id").Where("carts.id=?", cartId).Find(&products).Error; err != nil {
 		return products, nil
