@@ -29,26 +29,17 @@ func NewCheckoutModel(db *gorm.DB) *GormProductModel {
 	return &GormProductModel{db: db}
 }
 
-func (m *GormProductModel) AddCheckoutID() (int, error) {
-	var checkout Checkout
-	if err := m.db.Save(&checkout).Error; err != nil {
-		return 0, err
-	}
-	return checkout.ID, nil
+type CheckoutModel interface {
+	AddCheckoutID() (Checkout, error)
 }
 
-func (m *GormProductModel) UpdateCheckoutIdInCartItem(checkoutID, cartID, productID int) (CartDetails, error) {
-	var cartItem CartDetails
-
-	if err := m.db.Where("cart_id = ? and product_id = ? and checkout_id IS NULL", cartID, productID).First(&cartItem).Error; err != nil {
-		return cartItem, err
+func (m *GormProductModel) AddCheckoutID() (Checkout, error) {
+	var checkout Checkout
+	if err := m.db.Save(&checkout).Error; err != nil {
+		checkout := new(Checkout)
+		checkout.ID = 0
+		return *checkout, nil
 	}
 
-	var CheckoutID = checkoutID
-
-	if err := m.db.Model(&cartItem).Update("checkout_id", CheckoutID).Error; err != nil {
-		return cartItem, err
-	}
-
-	return cartItem, nil
+	return checkout, nil
 }
