@@ -12,6 +12,8 @@ func Route(e *echo.Echo,
 	customerController *controllers.CustomerController,
 	productController *controllers.ProductController,
 	categoryController *controllers.CategoryController,
+	cartController *controllers.CartController,
+	cartDetailController *controllers.CartDetailsController,
 ) {
 	// ------------------------------------------------------------------
 	// Login & Register
@@ -61,16 +63,13 @@ func Route(e *echo.Echo,
 	// eAuth.GET("/api/transaction/:id", transactionController.GetAllTransactionController)
 
 	// Cart
-	// eAuth.GET("/api/cart/:id/", cartController.GetAllCategoryController)
-	// eAuth.GET("/api/cart", cartController.GetAllCategoryController)
-	// eAuth.POST("/api/cart/", cartController.PostCategoryController)
-	// eAuth.POST("/api/cart", cartController.PostCategoryController)
-	// eAuth.GET("/api/cart/:id/", cartController.GetCategoryController)
-	// eAuth.GET("/api/cart/:id", cartController.GetCategoryController)
-	// eAuth.PUT("/api/cart/:id/", cartController.UpdateCategoryController)
-	// eAuth.PUT("/api/cart/:id", cartController.UpdateCategoryController)
-	// eAuth.DELETE("/api/cart/:id/", cartController.DeleteCategoryController)
-	// eAuth.DELETE("/api/cart/:id", cartController.DeleteCategoryController)
+	//carts
+	eAuth.POST("/carts/:productId/:qty", cartController.CreateCartController)                           // create new shopping cart
+	eAuth.POST("/carts/:cartId/details", cartDetailController.AddToCartController)                            //add product to cart
+	eAuth.GET("/carts/:id", cartController.GetCartController)                                           //get all product on a cart
+	eAuth.DELETE("/carts/:id", cartController.DeleteCartController)                                     //delete cart and all products included on it
+	eAuth.DELETE("/cartDetails/:carts_id/:products_id", cartDetailController.DeleteProductFromCartController) //delete product from cart
+
 
 	// ------------------------------------------------------------------
 	// CRUD Categories
