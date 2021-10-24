@@ -105,9 +105,9 @@ paths:
                 name:
                   type: string
                 price:
-                  type: string
+                  type: integer
                 stock:
-                  type: string
+                  type: integer
                 category_id:
                   $ref: "#/components/schemas/Categories/properties/id"
       responses:
@@ -155,9 +155,9 @@ paths:
                 name:
                   type: string
                 price:
-                  type: string
+                  type: integer
                 stock:
-                  type: string
+                  type: integer
                 category_id:
                   $ref: "#/components/schemas/Categories/properties/id"
       responses:
@@ -497,9 +497,9 @@ components:
         name:
           type: string
         price:
-          type: string
+          type: integer
         stock:
-          type: string
+          type: integer
         category_id":
           $ref: "#components/schemas/Categories/properties/id"
     Categories:
