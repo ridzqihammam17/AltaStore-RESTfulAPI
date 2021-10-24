@@ -8,7 +8,7 @@ type Category struct {
 	gorm.Model
 	Name string `json:"name" form:"name"`
 
-	Products []Product `gorm:"ForeignKey:CategoryID"`
+	Products []Product `gorm:"foreignKey:CategoryID"`
 }
 
 type GormCategoryModel struct {

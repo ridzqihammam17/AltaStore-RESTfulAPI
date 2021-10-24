@@ -139,9 +139,10 @@ func TestPostProductController(t *testing.T) {
 
 	// input controller
 	reqBodyPost, _ := json.Marshal(map[string]interface{}{
-		"name":  "Product B",
-		"price": 5000,
-		"stock": 5,
+		"name":        "Product B",
+		"price":       5000,
+		"stock":       5,
+		"category_id": 1,
 	})
 
 	// setting controller
@@ -205,9 +206,10 @@ func TestUpdateProductController(t *testing.T) {
 
 	// input controller
 	reqBodyPost, _ := json.Marshal(map[string]interface{}{
-		"name":  "Product B Update",
-		"price": 6000,
-		"stock": 6,
+		"name":        "Product B Update",
+		"price":       6000,
+		"stock":       6,
+		"category_id": 1,
 	})
 
 	// setting controller

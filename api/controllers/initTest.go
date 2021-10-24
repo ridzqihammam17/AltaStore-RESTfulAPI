@@ -39,13 +39,13 @@ func setup() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	productModel := models.NewProductModel(db)
-	_, err = productModel.Insert(newProduct)
+	categoryModel := models.NewCategoryModel(db)
+	_, err = categoryModel.Add(newCategory)
 	if err != nil {
 		fmt.Println(err)
 	}
-	categoryModel := models.NewCategoryModel(db)
-	_, err = categoryModel.Add(newCategory)
+	productModel := models.NewProductModel(db)
+	_, err = productModel.Insert(newProduct)
 	if err != nil {
 		fmt.Println(err)
 	}
