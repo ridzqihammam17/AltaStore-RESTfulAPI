@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	// "altastore/api/controllers"
 	"altastore/config"
 	"altastore/models"
 	"altastore/util"
@@ -12,102 +11,146 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v4"
-	// "github.com/labstack/gommon/bytes"
+	echo "github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAllProductController(t *testing.T) {
+func TestGetAllCategoryController(t *testing.T) {
 	// create database connection and create controller
 	setup()
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
-	productModel := models.NewProductModel(db)
-	productController := NewProductController(productModel)
+	categoryModel := models.NewCategoryModel(db)
+	categoryController := NewCategoryController(categoryModel)
+	customerModel := models.NewCustomerModel(db)
+	customerController := NewCustomerController(customerModel)
 
-	// // setting controller
 	e := echo.New()
+
+	// login
+	reqBodyLogin, _ := json.Marshal(models.Customer{Email: "ilham@gmail.com", Password: "pass123"})
+	loginreq := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBodyLogin))
+	// loginreq.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	loginreq.Header.Set("Content-Type", "application/json")
+	loginres := httptest.NewRecorder()
+	logincontext := e.NewContext(loginreq, loginres)
+	logincontext.SetPath("/api/login")
+
+	if err := customerController.LoginCustomerController(logincontext); err != nil {
+		t.Errorf("Should'nt get error, get error: %s", err)
+	}
+
+	var c models.Customer
+	json.Unmarshal(loginres.Body.Bytes(), &c)
+
+	// testing stuff
+
+	assert.Equal(t, 200, loginres.Code)
+	assert.NotEqual(t, "", c.Token)
+
+	token := c.Token
 
 	// setting controller
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
 	req.Header.Set("Content-Type", "application/json")
 	res := httptest.NewRecorder()
 	context := e.NewContext(req, res)
-	context.SetPath("/api/products")
+	context.SetPath("/api/categories")
 
-	if err := productController.GetAllProductController(context); err != nil {
+	if err := categoryController.GetAllCategoryController(context); err != nil {
 		t.Errorf("Should'nt get error, get error: %s", err)
 	}
 
 	type Response struct {
-		Code    int              `json:"code"`
-		Message string           `json:"message"`
-		Data    []models.Product `json:"data"`
+		Code    int               `json:"code"`
+		Message string            `json:"message"`
+		Data    []models.Category `json:"data"`
 	}
 	var response Response
 	json.Unmarshal(res.Body.Bytes(), &response)
-	// var productList []models.Product
+	// var productList []models.Category
 	// json.Unmarshal(res.Body.Bytes(), &productList)
 	// fmt.Println(productList)
 
 	assert.Equal(t, 200, res.Code)
-	assert.Equal(t, "Success Get All Product", response.Message)
+	assert.Equal(t, "Success Get All Category", response.Message)
 	assert.NotEmpty(t, response.Data)
 	assert.Equal(t, 1, len(response.Data))
-	assert.Equal(t, "Product A", response.Data[0].Name)
-	assert.Equal(t, 10000, response.Data[0].Price)
-	assert.Equal(t, 100, response.Data[0].Stock)
-
+	assert.Equal(t, "Category A", response.Data[0].Name)
 }
 
-func TestGetProductController(t *testing.T) {
+func TestGetCategoryController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
-	productModel := models.NewProductModel(db)
-	productController := NewProductController(productModel)
+	categoryModel := models.NewCategoryModel(db)
+	categoryController := NewCategoryController(categoryModel)
+	customerModel := models.NewCustomerModel(db)
+	customerController := NewCustomerController(customerModel)
 
-	// setting controller
 	e := echo.New()
+
+	// login
+	reqBodyLogin, _ := json.Marshal(models.Customer{Email: "ilham@gmail.com", Password: "pass123"})
+	loginreq := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBodyLogin))
+	// loginreq.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	loginreq.Header.Set("Content-Type", "application/json")
+	loginres := httptest.NewRecorder()
+	logincontext := e.NewContext(loginreq, loginres)
+	logincontext.SetPath("/api/login")
+
+	if err := customerController.LoginCustomerController(logincontext); err != nil {
+		t.Errorf("Should'nt get error, get error: %s", err)
+	}
+
+	var c models.Customer
+	json.Unmarshal(loginres.Body.Bytes(), &c)
+
+	// testing stuff
+
+	assert.Equal(t, 200, loginres.Code)
+	assert.NotEqual(t, "", c.Token)
+
+	token := c.Token
 
 	// setting controller
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
 	req.Header.Set("Content-Type", "application/json")
 	res := httptest.NewRecorder()
 	context := e.NewContext(req, res)
-	context.SetPath("/api/products/:id")
+	context.SetPath("/api/categories/:id")
 	context.SetParamNames("id")
 	context.SetParamValues("1")
 
-	if err := productController.GetProductController(context); err != nil {
+	if err := categoryController.GetCategoryController(context); err != nil {
 		t.Errorf("Should'nt get error, get error: %s", err)
 	}
 
 	type Response struct {
-		Code    int            `json:"code"`
-		Message string         `json:"message"`
-		Data    models.Product `json:"data"`
+		Code    int             `json:"code"`
+		Message string          `json:"message"`
+		Data    models.Category `json:"data"`
 	}
 	var response Response
 	json.Unmarshal(res.Body.Bytes(), &response)
-	// var productList []models.Product
+	// var productList []models.Category
 	// json.Unmarshal(res.Body.Bytes(), &productList)
 	// fmt.Println(productList)
 
 	assert.Equal(t, 200, res.Code)
-	assert.Equal(t, "Success Get All Product", response.Message)
+	assert.Equal(t, "Success Get Category", response.Message)
 	assert.NotEmpty(t, response.Data)
-	assert.Equal(t, "Product A", response.Data.Name)
-	assert.Equal(t, 10000, response.Data.Price)
-	assert.Equal(t, 100, response.Data.Stock)
+	assert.Equal(t, "Category A", response.Data.Name)
 
 }
 
-func TestPostProductController(t *testing.T) {
+func TestPostCategoryController(t *testing.T) {
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
-	productModel := models.NewProductModel(db)
-	productController := NewProductController(productModel)
+	categoryModel := models.NewCategoryModel(db)
+	categoryController := NewCategoryController(categoryModel)
 	customerModel := models.NewCustomerModel(db)
 	customerController := NewCustomerController(customerModel)
 
@@ -138,11 +181,8 @@ func TestPostProductController(t *testing.T) {
 	token := c.Token
 
 	// input controller
-	reqBodyPost, _ := json.Marshal(map[string]interface{}{
-		"name":        "Product B",
-		"price":       5000,
-		"stock":       5,
-		"category_id": 1,
+	reqBodyPost, _ := json.Marshal(map[string]string{
+		"name": "Category B",
 	})
 
 	// setting controller
@@ -151,9 +191,9 @@ func TestPostProductController(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	res := httptest.NewRecorder()
 	context := e.NewContext(req, res)
-	context.SetPath("/api/products")
+	context.SetPath("/api/categories")
 
-	if err := productController.PostProductController(context); err != nil {
+	if err := categoryController.AddCategoryController(context); err != nil {
 		t.Errorf("Should'nt get error, get error: %s", err)
 	}
 
@@ -167,17 +207,17 @@ func TestPostProductController(t *testing.T) {
 
 	// testing stuff
 	assert.Equal(t, 200, res.Code)
-	assert.Equal(t, "Success Add Product", response.Message)
+	assert.Equal(t, "Success Add Category", response.Message)
 }
 
-func TestUpdateProductController(t *testing.T) {
+func TestUpdateCategoryController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewCustomerModel(db)
 	customerController := NewCustomerController(userModel)
-	productModel := models.NewProductModel(db)
-	productController := NewProductController(productModel)
+	categoryModel := models.NewCategoryModel(db)
+	categoryController := NewCategoryController(categoryModel)
 
 	// setting controller
 	e := echo.New()
@@ -205,11 +245,8 @@ func TestUpdateProductController(t *testing.T) {
 	token := c.Token
 
 	// input controller
-	reqBodyPost, _ := json.Marshal(map[string]interface{}{
-		"name":        "Product B Update",
-		"price":       6000,
-		"stock":       6,
-		"category_id": 1,
+	reqBodyPost, _ := json.Marshal(map[string]string{
+		"name": "Category B Update",
 	})
 
 	// setting controller
@@ -218,11 +255,11 @@ func TestUpdateProductController(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	res := httptest.NewRecorder()
 	context := e.NewContext(req, res)
-	context.SetPath("/products/:id")
+	context.SetPath("/categories/:id")
 	context.SetParamNames("id")
 	context.SetParamValues("2")
 
-	productController.UpdateProductController(context)
+	categoryController.EditCategoryController(context)
 
 	type Response struct {
 		Code    int    `json:"code"`
@@ -237,14 +274,14 @@ func TestUpdateProductController(t *testing.T) {
 	assert.Equal(t, "Success Edit Category", response.Message)
 }
 
-func TestDeleteProductController(t *testing.T) {
+func TestDeleteCategoryController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewCustomerModel(db)
 	customerController := NewCustomerController(userModel)
-	productModel := models.NewProductModel(db)
-	productController := NewProductController(productModel)
+	categoryModel := models.NewCategoryModel(db)
+	categoryController := NewCategoryController(categoryModel)
 
 	// setting controller
 	e := echo.New()
@@ -277,11 +314,11 @@ func TestDeleteProductController(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	res := httptest.NewRecorder()
 	context := e.NewContext(req, res)
-	context.SetPath("/products/:id")
+	context.SetPath("/categories/:id")
 	context.SetParamNames("id")
 	context.SetParamValues("2")
 
-	productController.DeleteProductController(context)
+	categoryController.DeleteCategoryController(context)
 
 	type Response struct {
 		Code    int    `json:"code"`
@@ -293,5 +330,5 @@ func TestDeleteProductController(t *testing.T) {
 
 	// testing stuff
 	assert.Equal(t, 200, res.Code)
-	assert.Equal(t, "Success Delete Product", response.Message)
+	assert.Equal(t, "Success Delete Category", response.Message)
 }
