@@ -87,7 +87,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 	fmt.Println(c.Param("cnt"))
 	qty, _ := strconv.Atoi(c.Param("cnt"))
 	fmt.Println(qty)
-	productPrice, _ := strconv.Atoi(getProduct.Price)
+	productPrice := getProduct.Price
 	//set data cart details
 	cartDetails := models.CartDetails{
 		ProductsID: productId,

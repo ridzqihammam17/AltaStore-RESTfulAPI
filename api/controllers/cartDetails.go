@@ -67,7 +67,7 @@ func (controller *CartDetailsController) AddToCartController(c echo.Context) err
 
 	//get price
 	getProduct, _ := controller.productModel.Get(productId)
-	productPrice, _ := strconv.Atoi(getProduct.Price)
+	productPrice := getProduct.Price
 	fmt.Println(productPrice, cartId)
 	//set data cart details
 
@@ -189,10 +189,10 @@ func (controller *CartDetailsController) GetListProductCartController(c echo.Con
 	}
 
 	// Get List Product In Cart
-	[]getProduct, _ := controller.cartDetailModel.GetListProductCart(cartId)
+	getProduct, _ := controller.cartDetailModel.GetListProductCart(cartId)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data":   []getProduct,
+		"data":   getProduct,
 		"status": "Successfully get all product in cart",
 	})
 }
