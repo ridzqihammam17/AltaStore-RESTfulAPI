@@ -80,5 +80,10 @@ func Route(e *echo.Echo,
 	eAuth.POST("/api/categories", categoryController.AddCategoryController)
 	eAuth.PUT("/api/categories/:id", categoryController.EditCategoryController)
 	eAuth.DELETE("/api/categories/:id", categoryController.DeleteCategoryController)
+	// ------------------------------------------------------------------
+	// Payment Midtrans
+	// ------------------------------------------------------------------
+	e.GET("/api/payments/:id", controllers.RequestPayment)
+	e.GET("/api/statuspayments/:id", controllers.StatusPayment)
 
 }
