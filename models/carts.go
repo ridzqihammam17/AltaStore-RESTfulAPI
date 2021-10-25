@@ -18,17 +18,17 @@ type Carts struct {
 	CustomersID      int `json:"customers_id" form:"customers_id"`
 	PaymentMethodsID int `json:"payment_methods_id" form:"payment_methods_id"`
 
-	TransactionID      int `json:"transactions_id" form:"transactions_id"`
+	TransactionID int `json:"transactions_id" form:"transactions_id"`
 }
-
 
 type GormCartsModel struct {
 	db *gorm.DB
 }
 
-func (m *GormCartsModel) NewCartsModel(db *gorm.DB) *GormCartsModel {
+func NewCartModel(db *gorm.DB) *GormCartsModel {
 	return &GormCartsModel{db: db}
 }
+
 type CartModel interface {
 	CreateCart(cart Carts) (Carts, error)
 	GetCart(cartId int) (Carts, error)
@@ -83,8 +83,8 @@ func (m *GormCartsModel) UpdateTotalCart(cartId int, newTotalPrice int, newTotal
 		return cart, err
 	}
 
-	cart.TotalPrice = newTotalPrice
-	cart.TotalQuantity = newTotalQty
+	cart.TotalQuantity += newTotalQty
+	cart.TotalPrice += (newTotalPrice * newTotalQty)
 
 	if err := m.db.Save(&cart).Error; err != nil {
 		return cart, err
@@ -118,4 +118,3 @@ func (m *GormCartsModel) DeleteCart(cartId int) (cart Carts, err error) {
 	}
 	return cart, nil
 }
-

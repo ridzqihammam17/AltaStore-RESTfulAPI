@@ -25,8 +25,8 @@ type GormCheckoutModel struct {
 	db *gorm.DB
 }
 
-func NewCheckoutModel(db *gorm.DB) *GormProductModel {
-	return &GormProductModel{db: db}
+func NewCheckoutModel(db *gorm.DB) *GormCheckoutModel {
+	return &GormCheckoutModel{db: db}
 }
 
 type CheckoutModel interface {

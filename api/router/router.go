@@ -12,7 +12,9 @@ func Route(e *echo.Echo,
 	customerController *controllers.CustomerController,
 	productController *controllers.ProductController,
 	categoryController *controllers.CategoryController,
-	checkoutController *controllers.CheckoutController,
+	cartController *controllers.CartController,
+	cartDetailController *controllers.CartDetailsController,
+	// checkoutController *controllers.CheckoutController,
 ) {
 	// ------------------------------------------------------------------
 	// Login & Register
@@ -52,7 +54,7 @@ func Route(e *echo.Echo,
 	// eAuth.DELETE("/api/category/:id", categoryController.DeleteCategoryController)
 
 	// Checkout
-	eAuth.POST("/api/checkout", checkoutController.PostCheckoutController)
+	// eAuth.POST("/api/checkout", checkoutController.PostCheckoutController)
 
 	// Transaction
 	// eAuth.GET("/api/transaction/", transactionController.GetAllTransactionController)
@@ -61,10 +63,12 @@ func Route(e *echo.Echo,
 	// eAuth.GET("/api/transaction/:id", transactionController.GetAllTransactionController)
 
 	// Cart
-	// eAuth.GET("/api/cart/:id/item", cartController.GetAllCategoryController)
-	// eAuth.POST("/api/cart/:id/item", cartController.PostCategoryController)
-	// eAuth.PUT("/api/cart/:id/:cart_detailsId", cartController.UpdateCategoryController)
-	// eAuth.DELETE("/api/cart/:id/:cart_detailsId", cartController.DeleteCategoryController)
+	eAuth.GET("/api/cart/:id/item", cartController.GetCartController)
+	// eAuth.POST("/api/cart/:id/:productId", cartController.CreateCartController)
+	// eAuth.PUT("/api/cart/:id/:cartDetailsId", cartController.UpdateCartController)
+	eAuth.POST("/api/cart/:productId/:cnt", cartController.CreateCartController)
+	eAuth.DELETE("/api/cart/:id/:cartDetailsId", cartController.DeleteCartController)
+	eAuth.POST("/api/cart_detail/:cartId", cartDetailController.AddToCartController)
 
 	// ------------------------------------------------------------------
 	// CRUD Categories

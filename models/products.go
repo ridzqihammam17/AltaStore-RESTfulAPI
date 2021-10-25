@@ -11,6 +11,7 @@ type Product struct {
 	Price string `json:"price" form:"price"`
 	Stock string `json:"stock" form:"stock"`
 
+	Carts []*Carts `gorm:"many2many:cart_details" json:"carts"`
 	//1 to many with category
 	// Categories []Category `gorm:"foreignKey:CategoryID"`
 }

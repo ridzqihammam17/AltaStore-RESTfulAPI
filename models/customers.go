@@ -19,6 +19,7 @@ type Customer struct {
 
 	//1 to many with carts
 	// Carts []Carts `gorm:"foreignKey:CustomersID"`
+	Carts Carts `gorm:"foreignKey:CustomersID"`
 }
 
 type GormCustomerModel struct {

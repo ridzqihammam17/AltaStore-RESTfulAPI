@@ -19,11 +19,11 @@ type GormCartDetailsModel struct {
 	db *gorm.DB
 }
 
-func (m *GormCartDetailsModel) NewCartDetailsModel(db *gorm.DB) *GormCartDetailsModel {
+func NewCartDetailModel(db *gorm.DB) *GormCartDetailsModel {
 	return &GormCartDetailsModel{db: db}
 }
 
-type CartDetailsModel interface {
+type CartDetailModel interface {
 	CheckProductAndCartId(productId, cartId int, cartDetails CartDetails) (interface{}, error)
 	GetCartDetailByCartId(cartId int) (CartDetails, error)
 	AddToCart(cartDetails CartDetails) (CartDetails, error)
@@ -32,6 +32,7 @@ type CartDetailsModel interface {
 	CountProductOnCart(cartId int) (int, error)
 	CountProductandPriceOnCart(cartId int) (int, int, error)
 }
+
 func (m *GormCartDetailsModel) CheckProductAndCartId(productId, cartId int, cartDetails CartDetails) (interface{}, error) {
 	if err := m.db.Where("carts_id=? AND products_id=?", cartId, productId).First(&cartDetails).Error; err != nil {
 		return nil, err
@@ -47,6 +48,7 @@ func (m *GormCartDetailsModel) GetProduct(productId int) (Product, error) {
 	}
 	return product, nil
 }
+
 //Get cart details by Cart ID
 func (m *GormCartDetailsModel) GetCartDetailByCartId(cartId int) (CartDetails, error) {
 	var cartDetails CartDetails
