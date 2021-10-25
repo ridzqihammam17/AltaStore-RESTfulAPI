@@ -174,5 +174,25 @@ func (controller *CartDetailsController) DeleteProductFromCartController(c echo.
 }
 
 func (controller *CartDetailsController) GetListProductCartController(c echo.Context) error {
+	cartId, err := strconv.Atoi(c.Param("cartId"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Cart Id is Invalid",
+		})
+	}
+	checkCartId, err := controller.cartModel.CheckCartId(cartId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message":     "Can't find cart",
+			"checkCartId": checkCartId,
+		})
+	}
 
+	// Get List Product In Cart
+	[]getProduct, _ := controller.cartDetailModel.GetListProductCart(cartId)
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":   []getProduct,
+		"status": "Successfully get all product in cart",
+	})
 }

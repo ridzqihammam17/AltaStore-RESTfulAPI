@@ -63,7 +63,7 @@ func Route(e *echo.Echo,
 	// eAuth.GET("/api/transaction/:id", transactionController.GetAllTransactionController)
 
 	// Cart
-	eAuth.GET("/api/cart/:id/item", cartController.GetCartController)
+	eAuth.GET("/api/cart_detail/:cartId", cartDetailController.GetListProductCartController)
 	// eAuth.POST("/api/cart/:id/:productId", cartController.CreateCartController)
 	// eAuth.PUT("/api/cart/:id/:cartDetailsId", cartController.UpdateCartController)
 	eAuth.POST("/api/cart/:productId/:cnt", cartController.CreateCartController)
