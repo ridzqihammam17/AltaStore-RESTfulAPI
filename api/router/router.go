@@ -83,7 +83,7 @@ func Route(e *echo.Echo,
 	// ------------------------------------------------------------------
 	// Payment Midtrans
 	// ------------------------------------------------------------------
-	e.GET("/api/payments/:id", controllers.RequestPayment)
-	e.GET("/api/statuspayments/:id", controllers.StatusPayment)
+	e.GET("/api/payments/request/:id", controllers.RequestPayment)
+	e.GET("/api/payments/status/:id", controllers.StatusPayment)
 
 }
