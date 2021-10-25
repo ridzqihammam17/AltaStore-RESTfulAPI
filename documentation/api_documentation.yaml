@@ -15,6 +15,8 @@ tags:
     description: API Products
   - name: Product Categories
     description: API Product Categories
+  - name: Payment Midtrans
+    description: API Snap Midtrans
 paths:
   /register:
     post:
@@ -284,6 +286,45 @@ paths:
           $ref: "#/components/responses/ResponseDeleteCategories"
         '400':
           $ref: "#/components/responses/BadRequest"
+
+  /payments/request/{id}:
+    get:
+      security:
+      - basicAuth: []
+      tags:
+      - Payment Midtrans
+      summary: Generate Request Payment to Midtrans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID For Transaction Request Payment
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseRequestPayments'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /payments/status/{id}:
+     get:
+      security:
+      - basicAuth: []
+      tags:
+      - Payment Midtrans
+      summary: Get Status Payment to Midtrans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID For Transaction Status Payment
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseStatusPayments'
+        '400':
+          $ref: '#/components/responses/BadRequest'
     
 components:
   responses:
@@ -464,12 +505,44 @@ components:
           example:
             success: true
             message: Success Delete Product
+    ResponseRequestPayments:
+      description: Generate Request Payment to Midtrans
+      content:
+        application/json:
+          example:
+            link: "snap.app.midtrans/v2/snap/tioi87899HJg45"
+    ResponseStatusPayments:
+      description: Generate Status Payment to Midtrans
+      content:
+        application/json:
+          example:
+            masked_card: "411111-1111"
+            approval_code: "1599493766402"
+            bank: "bni"
+            channel_response_code: "00"
+            channel_response_message: "Approved"
+            transaction_time: "2020-09-07 22:49:26"
+            gross_amount: "10000.00"
+            currency: "IDR"
+            order_id: "SANDBOX-G710367688-806"
+            payment_type: "credit_card"
+            signature_key: "4d4abc70f5a8b09f48f3ab5cb91245feb0b3d89181117a677767b42f8cbe477f5a0d38af078487071311f97da646c1eb9542c1bbf0b19fa9f12e64605ac405e"
+            status_code: "200"
+            transaction_id: "3853c491-ca9b-4bcc-ac20-3512ff72a5d0"
+            transaction_status: "cancel"
+            fraud_status: "challenge"
+            status_message: "Success, transaction is found"
+            merchant_id: "G710367688"
+            card_type: "credit"
 
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
 
   schemas:
     Customer:
