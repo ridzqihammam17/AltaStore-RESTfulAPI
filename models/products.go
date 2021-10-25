@@ -6,10 +6,12 @@ import (
 
 type Product struct {
 	gorm.Model
+	ID    int    `gorm:"primaryKey" json:"id" form:"id"`
 	Name  string `json:"name" form:"name"`
 	Price int    `json:"price" form:"price"`
 	Stock int    `json:"stock" form:"stock"`
 
+	Carts []*Carts `gorm:"many2many:cart_details" json:"carts"`
 	//1 to many with category
 	CategoryID int `gorm:"column:category_id" json:"category_id" form:"category_id"`
 	Category   Category
@@ -30,8 +32,16 @@ type ProductModel interface {
 	Insert(Product) (Product, error)
 	Edit(product Product, productId int) (Product, error)
 	Delete(productId int) (Product, error)
+	CheckProductId(productId int) (interface{}, error)
 }
 
+func (m *GormProductModel) CheckProductId(productId int) (interface{}, error) {
+	var product []Product
+	if err := m.db.Where("id=?", productId).First(&product).Error; err != nil {
+		return nil, err
+	}
+	return product, nil
+}
 func (m *GormProductModel) GetAll() ([]Product, error) {
 	var product []Product
 	if err := m.db.Preload("Category").Find(&product).Error; err != nil {

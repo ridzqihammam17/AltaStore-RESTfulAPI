@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"altastore/models"
 	"net/http"
 	"strconv"
+
+	"altastore/models"
 
 	echo "github.com/labstack/echo/v4"
 )

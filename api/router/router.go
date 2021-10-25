@@ -12,6 +12,9 @@ func Route(e *echo.Echo,
 	customerController *controllers.CustomerController,
 	productController *controllers.ProductController,
 	categoryController *controllers.CategoryController,
+	cartController *controllers.CartController,
+	cartDetailController *controllers.CartDetailsController,
+	// checkoutController *controllers.CheckoutController,
 ) {
 	// ------------------------------------------------------------------
 	// Login & Register
@@ -51,7 +54,6 @@ func Route(e *echo.Echo,
 	// eAuth.DELETE("/api/category/:id", categoryController.DeleteCategoryController)
 
 	// Checkout
-	// eAuth.POST("/api/checkout/", checkoutController.PostCheckoutController)
 	// eAuth.POST("/api/checkout", checkoutController.PostCheckoutController)
 
 	// Transaction
@@ -61,16 +63,12 @@ func Route(e *echo.Echo,
 	// eAuth.GET("/api/transaction/:id", transactionController.GetAllTransactionController)
 
 	// Cart
-	// eAuth.GET("/api/cart/:id/", cartController.GetAllCategoryController)
-	// eAuth.GET("/api/cart", cartController.GetAllCategoryController)
-	// eAuth.POST("/api/cart/", cartController.PostCategoryController)
-	// eAuth.POST("/api/cart", cartController.PostCategoryController)
-	// eAuth.GET("/api/cart/:id/", cartController.GetCategoryController)
-	// eAuth.GET("/api/cart/:id", cartController.GetCategoryController)
-	// eAuth.PUT("/api/cart/:id/", cartController.UpdateCategoryController)
-	// eAuth.PUT("/api/cart/:id", cartController.UpdateCategoryController)
-	// eAuth.DELETE("/api/cart/:id/", cartController.DeleteCategoryController)
-	// eAuth.DELETE("/api/cart/:id", cartController.DeleteCategoryController)
+	eAuth.GET("/api/cart_detail/:cartId", cartDetailController.GetListProductCartController)
+	// eAuth.POST("/api/cart/:id/:productId", cartController.CreateCartController)
+	// eAuth.PUT("/api/cart/:id/:cartDetailsId", cartController.UpdateCartController)
+	eAuth.POST("/api/cart/:productId/:cnt", cartController.CreateCartController)
+	eAuth.DELETE("/api/cart/:id/:cartDetailsId", cartController.DeleteCartController)
+	eAuth.POST("/api/cart_detail/:cartId", cartDetailController.AddToCartController)
 
 	// ------------------------------------------------------------------
 	// CRUD Categories

@@ -24,17 +24,22 @@ func main() {
 	customerModel := models.NewCustomerModel(db)
 	productModel := models.NewProductModel(db)
 	categoryModel := models.NewCategoryModel(db)
+	cartModel := models.NewCartModel(db)
+	cartDetailModel := models.NewCartDetailModel(db)
+	// checkoutModel := models.NewCheckoutModel(db)
 
 	//initiate controller
 	newCustomerController := controllers.NewCustomerController(customerModel)
 	newProductController := controllers.NewProductController(productModel)
 	newCategoryController := controllers.NewCategoryController(categoryModel)
-
+	newCartController := controllers.NewCartController(cartModel, cartDetailModel, productModel)
+	newCartDetailController := controllers.NewCartDetailController(cartModel, cartDetailModel, productModel)
+	// newCheckoutController := controllers.NewCheckoutController(checkoutModel)
 	//create echo http
 	e := echo.New()
 
 	//register API path and controller
-	router.Route(e, newCustomerController, newProductController, newCategoryController)
+	router.Route(e, newCustomerController, newProductController, newCategoryController, newCartController, newCartDetailController)
 
 	// run server
 	address := fmt.Sprintf("localhost:%d", config.Port)

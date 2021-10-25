@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"altastore/models"
 	"net/http"
 
-	echo "github.com/labstack/echo/v4"
+	"altastore/models"
+
+	"github.com/labstack/echo/v4"
 )
 
 type CustomerController struct {
@@ -42,12 +43,7 @@ func (controller *CustomerController) RegisterCustomerController(c echo.Context)
 			"message": "Internal Server Error",
 		})
 	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success": true,
-		"code":    200,
-		"message": "Success Register",
-	})
+	return c.String(http.StatusOK, "Success Add Account")
 }
 
 func (controller *CustomerController) LoginCustomerController(c echo.Context) error {
