@@ -34,6 +34,7 @@ func main() {
 	newCategoryController := controllers.NewCategoryController(categoryModel)
 	newCartController := controllers.NewCartController(cartModel, cartDetailModel, productModel)
 	newCartDetailController := controllers.NewCartDetailController(cartModel, cartDetailModel, productModel)
+
 	// newCheckoutController := controllers.NewCheckoutController(checkoutModel)
 	//create echo http
 	e := echo.New()

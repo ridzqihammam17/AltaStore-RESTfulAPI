@@ -63,12 +63,12 @@ func Route(e *echo.Echo,
 	// eAuth.GET("/api/transaction/:id", transactionController.GetAllTransactionController)
 
 	// Cart
-	eAuth.GET("/api/cart_detail/:cartId", cartDetailController.GetListProductCartController)
-	// eAuth.POST("/api/cart/:id/:productId", cartController.CreateCartController)
-	// eAuth.PUT("/api/cart/:id/:cartDetailsId", cartController.UpdateCartController)
-	eAuth.POST("/api/cart/:productId/:cnt", cartController.CreateCartController)
-	eAuth.DELETE("/api/cart/:id/:cartDetailsId", cartController.DeleteCartController)
-	eAuth.POST("/api/cart_detail/:cartId", cartDetailController.AddToCartController)
+	//carts
+	eAuth.POST("/carts/:productId/:qty", cartController.CreateCartController)                                 // create new shopping cart
+	eAuth.POST("/carts/:cartId/details", cartDetailController.AddToCartController)                            //add product to cart
+	eAuth.GET("/carts/:id", cartController.GetCartController)                                                 //get all product on a cart
+	eAuth.DELETE("/carts/:id", cartController.DeleteCartController)                                           //delete cart and all products included on it
+	eAuth.DELETE("/cartDetails/:carts_id/:products_id", cartDetailController.DeleteProductFromCartController) //delete product from cart
 
 	// ------------------------------------------------------------------
 	// CRUD Categories
