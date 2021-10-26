@@ -58,7 +58,7 @@ func (controller *ProductController) GetProductController(c echo.Context) error 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
 		"code":    200,
-		"message": "Success Get Product",
+		"message": "Success Get All Product",
 		"data":    product,
 	})
 }
@@ -75,9 +75,10 @@ func (controller *ProductController) PostProductController(c echo.Context) error
 	}
 
 	product := models.Product{
-		Name:  productRequest.Name,
-		Price: productRequest.Price,
-		Stock: productRequest.Stock,
+		Name:       productRequest.Name,
+		Price:      productRequest.Price,
+		Stock:      productRequest.Stock,
+		CategoryID: productRequest.CategoryID,
 	}
 	_, err := controller.productModel.Insert(product)
 	if err != nil {
@@ -116,9 +117,10 @@ func (controller *ProductController) UpdateProductController(c echo.Context) err
 	}
 
 	product := models.Product{
-		Name:  productRequest.Name,
-		Price: productRequest.Price,
-		Stock: productRequest.Stock,
+		Name:       productRequest.Name,
+		Price:      productRequest.Price,
+		Stock:      productRequest.Stock,
+		CategoryID: productRequest.CategoryID,
 	}
 
 	if _, err := controller.productModel.Edit(product, id); err != nil {

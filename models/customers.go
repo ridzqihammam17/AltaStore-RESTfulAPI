@@ -9,7 +9,6 @@ import (
 
 type Customer struct {
 	gorm.Model
-	// ID       int    `gorm:"primaryKey" json:"id" form:"id"`
 	Name     string `json:"name" form:"name"`
 	Address  string `json:"address" form:"address"`
 	Gender   string `json:"gender" form:"gender"`
@@ -19,6 +18,7 @@ type Customer struct {
 
 	//1 to many with carts
 	// Carts []Carts `gorm:"foreignKey:CustomersID"`
+	Carts Carts `gorm:"foreignKey:CustomersID"`
 }
 
 type GormCustomerModel struct {

@@ -26,6 +26,7 @@ func main() {
 	categoryModel := models.NewCategoryModel(db)
 	cartModel := models.NewCartModel(db)
 	cartDetailModel := models.NewCartDetailModel(db)
+	// checkoutModel := models.NewCheckoutModel(db)
 
 	//initiate controller
 	newCustomerController := controllers.NewCustomerController(customerModel)
@@ -34,6 +35,7 @@ func main() {
 	newCartController := controllers.NewCartController(cartModel, cartDetailModel, productModel)
 	newCartDetailController := controllers.NewCartDetailController(cartModel, cartDetailModel, productModel)
 
+	// newCheckoutController := controllers.NewCheckoutController(checkoutModel)
 	//create echo http
 	e := echo.New()
 

@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
+	// "altastore/api/middlewares"
 	"altastore/api/middlewares"
-	_ "altastore/api/middlewares"
 	"altastore/models"
 
 	echo "github.com/labstack/echo/v4"
@@ -13,11 +14,11 @@ import (
 
 type CartController struct {
 	cartModel       models.CartModel
-	cartDetailModel models.CartDetailsModel
+	cartDetailModel models.CartDetailModel
 	productModel    models.ProductModel
 }
 
-func NewCartController(cartModel models.CartModel, cartDetailModel models.CartDetailsModel, productModel models.ProductModel) *CartController {
+func NewCartController(cartModel models.CartModel, cartDetailModel models.CartDetailModel, productModel models.ProductModel) *CartController {
 	return &CartController{
 		cartModel,
 		cartDetailModel,
@@ -26,9 +27,9 @@ func NewCartController(cartModel models.CartModel, cartDetailModel models.CartDe
 }
 
 func (controller *CartController) CreateCartController(c echo.Context) error {
-
 	// ------------ cart -------------//
 	//rec user input
+	fmt.Println(c.ParamNames())
 	var cart models.Carts
 	c.Bind(&cart) //input: payment method id
 
@@ -58,7 +59,11 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 
 	//------------ cart detail -------------//
 	// convert product id
+	fmt.Println(c.Param("productId"))
 	productId, err := strconv.Atoi(c.Param("productId"))
+
+	fmt.Println(productId, err)
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": "Product id is invalid",
@@ -79,8 +84,10 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 	getProduct, _ := controller.productModel.Get(productId)
 
 	//convert qty
-	qty, _ := strconv.Atoi(c.Param("qty"))
-	productPrice, _ := strconv.Atoi(getProduct.Price)
+	fmt.Println(c.Param("cnt"))
+	qty, _ := strconv.Atoi(c.Param("cnt"))
+	fmt.Println(qty)
+	productPrice := getProduct.Price
 	//set data cart details
 	cartDetails := models.CartDetails{
 		ProductsID: productId,
@@ -116,6 +123,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 		"cartDetails": newCartDetail,
 		"status":      "Create cart success",
 	})
+
 }
 
 //func for update total quantity and total price on table carts
@@ -150,9 +158,9 @@ func (controller *CartController) GetCartController(c echo.Context) error {
 
 	//custom data cart for body response
 	outputCart := map[string]interface{}{
-		"ID":                  listCart.ID,
-		"customers_id":        listCart.CustomersID,
-		"payment_methods_id":  listCart.PaymentMethodsID,
+		"ID": listCart.ID,
+		// "customers_id":        listCart.CustomersID,
+		// "payment_methods_id":  listCart.PaymentMethodsID,
 		"status_transactions": listCart.StatusTransactions,
 		"total_quantity":      listCart.TotalQuantity,
 		"total_price":         listCart.TotalPrice,
@@ -192,9 +200,9 @@ func (controller *CartController) DeleteCartController(c echo.Context) error {
 
 	//custom output data cart for body response
 	outputCart := map[string]interface{}{
-		"ID":                  deletedCart.ID,
-		"customers_id":        deletedCart.CustomersID,
-		"payment_methods_id":  deletedCart.PaymentMethodsID,
+		"ID": deletedCart.ID,
+		// "customers_id":        deletedCart.CustomersID,
+		// "payment_methods_id":  deletedCart.PaymentMethodsID,
 		"status_transactions": deletedCart.StatusTransactions,
 		"total_quantity":      deletedCart.TotalQuantity,
 		"total_price":         deletedCart.TotalPrice,

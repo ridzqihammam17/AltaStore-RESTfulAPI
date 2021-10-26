@@ -14,6 +14,7 @@ func Route(e *echo.Echo,
 	categoryController *controllers.CategoryController,
 	cartController *controllers.CartController,
 	cartDetailController *controllers.CartDetailsController,
+	// checkoutController *controllers.CheckoutController,
 ) {
 	// ------------------------------------------------------------------
 	// Login & Register
@@ -53,7 +54,6 @@ func Route(e *echo.Echo,
 	// eAuth.DELETE("/api/category/:id", categoryController.DeleteCategoryController)
 
 	// Checkout
-	// eAuth.POST("/api/checkout/", checkoutController.PostCheckoutController)
 	// eAuth.POST("/api/checkout", checkoutController.PostCheckoutController)
 
 	// Transaction
@@ -64,12 +64,11 @@ func Route(e *echo.Echo,
 
 	// Cart
 	//carts
-	eAuth.POST("/carts/:productId/:qty", cartController.CreateCartController)                           // create new shopping cart
+	eAuth.POST("/carts/:productId/:qty", cartController.CreateCartController)                                 // create new shopping cart
 	eAuth.POST("/carts/:cartId/details", cartDetailController.AddToCartController)                            //add product to cart
-	eAuth.GET("/carts/:id", cartController.GetCartController)                                           //get all product on a cart
-	eAuth.DELETE("/carts/:id", cartController.DeleteCartController)                                     //delete cart and all products included on it
+	eAuth.GET("/carts/:id", cartController.GetCartController)                                                 //get all product on a cart
+	eAuth.DELETE("/carts/:id", cartController.DeleteCartController)                                           //delete cart and all products included on it
 	eAuth.DELETE("/cartDetails/:carts_id/:products_id", cartDetailController.DeleteProductFromCartController) //delete product from cart
-
 
 	// ------------------------------------------------------------------
 	// CRUD Categories
@@ -79,5 +78,10 @@ func Route(e *echo.Echo,
 	eAuth.POST("/api/categories", categoryController.AddCategoryController)
 	eAuth.PUT("/api/categories/:id", categoryController.EditCategoryController)
 	eAuth.DELETE("/api/categories/:id", categoryController.DeleteCategoryController)
+	// ------------------------------------------------------------------
+	// Payment Midtrans
+	// ------------------------------------------------------------------
+	e.GET("/api/payments/request/:id", controllers.RequestPayment)
+	e.GET("/api/payments/status/:id", controllers.StatusPayment)
 
 }

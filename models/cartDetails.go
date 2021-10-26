@@ -23,7 +23,7 @@ func NewCartDetailModel(db *gorm.DB) *GormCartDetailsModel {
 	return &GormCartDetailsModel{db: db}
 }
 
-type CartDetailsModel interface {
+type CartDetailModel interface {
 	CheckProductAndCartId(productId, cartId int, cartDetails CartDetails) (interface{}, error)
 	GetCartDetailByCartId(cartId int) (CartDetails, error)
 	AddToCart(cartDetails CartDetails) (CartDetails, error)
@@ -77,12 +77,15 @@ func (m *GormCartDetailsModel) DeleteProductFromCart(cartId, productId int) (int
 
 //get all products from cart detail
 func (m *GormCartDetailsModel) GetListProductCart(cartId int) (interface{}, error) {
-	var products Product
+	var cartDetail CartDetails
 
-	if err := m.db.Table("products").Joins("JOIN cart_details ON products.id = cart_details.products_id").Joins("JOIN carts ON cart_details.carts_id = carts.id").Where("carts.id=?", cartId).Find(&products).Error; err != nil {
-		return products, nil
+	if err := m.db.Find(&cartDetail, "carts_id=?", cartId).Error; err != nil {
+		return nil, err
 	}
-	return products, nil
+	// if err := m.db.Table("products").Joins("JOIN cart_details ON products.id = cart_details.products_id").Joins("JOIN carts ON cart_details.carts_id = carts.id").Where("carts.id=?", cartId).Find(&cartDetail).Error; err != nil {
+	// 	return cartDetail, nil
+	// }
+	return cartDetail, nil
 }
 
 func (m *GormCartDetailsModel) CountProductOnCart(cartId int) (int, error) {

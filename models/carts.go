@@ -83,8 +83,8 @@ func (m *GormCartsModel) UpdateTotalCart(cartId int, newTotalPrice int, newTotal
 		return cart, err
 	}
 
-	cart.TotalPrice = newTotalPrice
-	cart.TotalQuantity = newTotalQty
+	cart.TotalQuantity += newTotalQty
+	cart.TotalPrice += (newTotalPrice * newTotalQty)
 
 	if err := m.db.Save(&cart).Error; err != nil {
 		return cart, err
