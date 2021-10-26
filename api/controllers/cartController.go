@@ -10,10 +10,11 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 )
+
 type CartController struct {
-	cartModel models.CartModel
+	cartModel       models.CartModel
 	cartDetailModel models.CartDetailsModel
-	productModel models.ProductModel
+	productModel    models.ProductModel
 }
 
 func NewCartController(cartModel models.CartModel, cartDetailModel models.CartDetailsModel, productModel models.ProductModel) *CartController {
@@ -23,7 +24,6 @@ func NewCartController(cartModel models.CartModel, cartDetailModel models.CartDe
 		productModel,
 	}
 }
-
 
 func (controller *CartController) CreateCartController(c echo.Context) error {
 
@@ -93,7 +93,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 	newCartDetail, _ := controller.cartDetailModel.AddToCart(cartDetails)
 
 	//update total quantity and total price on table carts
-	controller.cartModel.UpdateTotalCart(newCart.ID,productPrice,qty)
+	controller.cartModel.UpdateTotalCart(newCart.ID, productPrice, qty)
 
 	//get cart updated (total qty&total price)
 	updatedCart, _ := controller.cartModel.GetCart(newCart.ID)
@@ -117,6 +117,7 @@ func (controller *CartController) CreateCartController(c echo.Context) error {
 		"status":      "Create cart success",
 	})
 }
+
 //func for update total quantity and total price on table carts
 func (controller *CartController) UpdateTotalCart(cartId int) (int, int) {
 	newTotalPrice, _ := controller.cartModel.GetTotalPrice(cartId)
@@ -144,7 +145,7 @@ func (controller *CartController) GetCartController(c echo.Context) error {
 		})
 	}
 
-	listCart, _ := controller.cartModel.GetCartById(id)        //get cart by id
+	listCart, _ := controller.cartModel.GetCartById(id)              //get cart by id
 	products, _ := controller.cartDetailModel.GetListProductCart(id) //get all products based on cart id
 
 	//custom data cart for body response
